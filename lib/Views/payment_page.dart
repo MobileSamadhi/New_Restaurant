@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:synnex_mobile/Views/bill_page.dart';
-
-
+import 'package:synnex_mobile/Views/print_bill.dart'; // Import the PrintBillPage
 
 class PaymentPage extends StatefulWidget {
   final double amount;
+  final String billNumber; // Add billNumber
+  final List<Map<String, dynamic>> cart; // Add cart
+  final double discount; // Add discount
+  final double grossAmount; // Add grossAmount
+  final String user; // Add user
 
-  PaymentPage({required this.amount});
+  PaymentPage({
+    required this.amount,
+    required this.billNumber,
+    required this.cart,
+    required this.discount,
+    required this.grossAmount,
+    required this.user,
+  });
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -49,7 +60,6 @@ class _PaymentPageState extends State<PaymentPage> {
             fontWeight: FontWeight.bold, // Adjust the font weight as needed
             color: Color(0xFF414042), // Adjust the text color as needed
           ),
-
         ),
         backgroundColor: const Color(0xFF0072bc),
       ),
@@ -117,9 +127,36 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 const SizedBox(height: 20),
                 _paymentSuccess
-                    ? const Text(
-                  'Payment Successful',
-                  style: TextStyle(color: Colors.green, fontSize: 18),
+                    ? Column(
+                  children: [
+                    const Text(
+                      'Payment Successful',
+                      style: TextStyle(color: Colors.green, fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PrintBillPage(
+                              items: widget.cart,
+                              address: '117 Galle Rd, Colombo 00400',
+                              billNumber: widget.billNumber,
+                              dateTime: DateTime.now(),
+                              discount: widget.discount,
+                              grossAmount: widget.grossAmount,
+                              netAmount: widget.amount,
+                              contactNumber: '',
+                              user: widget.user,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                      child: const Text('Print Bill'),
+                    ),
+                  ],
                 )
                     : const SizedBox(),
               ],
@@ -147,6 +184,25 @@ class _PaymentPageState extends State<PaymentPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                if (color == Colors.green) {
+                  // Navigate to PrintBillPage if the payment is successful
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PrintBillPage(
+                        items: widget.cart,
+                        address: '117 Galle Rd, Colombo 00400',
+                        billNumber: widget.billNumber,
+                        dateTime: DateTime.now(),
+                        discount: widget.discount,
+                        grossAmount: widget.grossAmount,
+                        netAmount: widget.amount,
+                        contactNumber: '',
+                        user: widget.user,
+                      ),
+                    ),
+                  );
+                }
               },
               child: const Text(
                 'OK',
@@ -244,7 +300,6 @@ class _PaymentPageState extends State<PaymentPage> {
                   });
                   Navigator.of(context).pop();
                   _showMessage(context, 'Payment Result', 'Payment Successful', Colors.green);
-
                 }
               },
               style: ElevatedButton.styleFrom(

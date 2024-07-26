@@ -169,7 +169,6 @@ class _BillingPageState extends State<BillingPage> {
     );
   }
 
-
   void updateSummary() {
     setState(() {
       // Trigger the UI update to reflect the cart changes
@@ -180,7 +179,14 @@ class _BillingPageState extends State<BillingPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentPage(amount: netAmount),
+        builder: (context) => PaymentPage(
+          amount: netAmount,
+          billNumber: billNumber, // Pass billNumber
+          cart: cart, // Pass cart
+          discount: discount, // Pass discount
+          grossAmount: calculateGrossAmount(cart), // Pass grossAmount
+          user: 'Admin', // Pass user (you can change this value accordingly)
+        ),
       ),
     ).then((value) {
       if (value == true) {
@@ -471,7 +477,6 @@ class _BillingPageState extends State<BillingPage> {
     }
   }
 
-
   Widget buildBillingSummaryContainer(BuildContext context) {
     double grossAmount = calculateGrossAmount(cart);
     double netAmount = calculateNetAmount(cart, discount);
@@ -537,42 +542,6 @@ class _BillingPageState extends State<BillingPage> {
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PrintBillPage(
-                          items: cart,
-                          address: '117 Galle Rd, Colombo 00400', // Add the address here
-                          billNumber: billNumber, // Add the bill number here
-                          dateTime: DateTime.now(), // Add the current date and time here
-                          discount: discount, // Add the discount value here
-                          grossAmount: grossAmount, // Calculate and provide the gross amount here
-                          netAmount: netAmount, // Calculate and provide the net amount here
-                          contactNumber: '', // Add the contact number here
-                          user: 'Admin',  // Add the user here
-                        ),
-                      ),
-                    ).then((_) {
-                      setState(() {
-                        billCounter++; // Increment bill counter after printing the bill
-                        billNumber = billCounter.toString();
-                        billId = billCounter;
-                        cart.clear(); // Clear the cart
-                        discount = 0.0; // Reset discount
-                        productSearchController.clear(); // Clear the search field
-                        selectedCategory = null; // Reset category selection
-                        products = AddProductDb().getProducts(); // Refresh products
-                        filteredProducts = []; // Clear filtered products
-                      });
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: const Text('Print Bill'),
-                ),
-              ),
             ],
           ),
         ],
