@@ -552,7 +552,7 @@ class _BillingPageState extends State<BillingPage> {
                           grossAmount: grossAmount, // Calculate and provide the gross amount here
                           netAmount: netAmount, // Calculate and provide the net amount here
                           contactNumber: '', // Add the contact number here
-                          user: 'Admin', // Add the user here
+                          user: 'Admin',  // Add the user here
                         ),
                       ),
                     ).then((_) {

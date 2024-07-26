@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:synnex_mobile/JsonModels/add_product_model.dart';
@@ -115,7 +116,12 @@ class _AddProductState extends State<AddProduct> {
                       }
                       return null;
                     },
+
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(1000), // Limits input to 10 characters
+                    ],
                     decoration: InputDecoration(
                       labelText: "Quantity",
                       labelStyle: const TextStyle(color: Color(0xFF0072BC)),
@@ -137,9 +143,15 @@ class _AddProductState extends State<AddProduct> {
                       return null;
                     },
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(1000), // Limits input to 10 characters
+                    ],
                     decoration: InputDecoration(
                       labelText: "Add one Item Price",
                       labelStyle: const TextStyle(color: Color(0xFF0072BC)),
+                      suffixText: '.00', // Suffix text to display on the right side
+                      suffixStyle: TextStyle(color: Colors.grey[600]),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF0072BC)),
