@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:synnex_mobile/Views/bill_page.dart';
 import 'package:synnex_mobile/Views/print_bill.dart'; // Import the PrintBillPage
 
 class PaymentPage extends StatefulWidget {

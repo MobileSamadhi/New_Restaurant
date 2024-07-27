@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import '../JsonModels/add_product_model.dart';
-import '../JsonModels/product_model.dart'; // Ensure correct import if using AddProductModel
+import '../JsonModels/product_model.dart';
+import 'bill_page.dart'; // Ensure correct import if using AddProductModel
 
 class PrintBillPage extends StatefulWidget {
   final List<Map<String, dynamic>> items;
@@ -75,24 +76,20 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
     for (var item in widget.items) {
       var product = item['product'];
-
-      if (product is NoteModel) {
-        var name = product.noteTitle;
-        var quantity = item['quantity'].toString();
-        var price = product.notePrice!.toStringAsFixed(2);
-        var total = (product.notePrice! * item['quantity']).toStringAsFixed(2);
-
-        String itemLine = formatLine(name, quantity, price, total);
-        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
-      } else if (product is AddProductModel) {
-        var name = product.noteTitle;
-        var quantity = item['quantity'].toString();
-        var price = product.notePrice!.toStringAsFixed(2);
-        var total = (product.notePrice! * item['quantity']).toStringAsFixed(2);
-
-        String itemLine = formatLine(name, quantity, price, total);
-        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
+      String name = '';
+      double price = 0.0;
+      if (product is AddProductModel) {
+        name = product.noteTitle;
+        price = product.notePrice!;
+      } else if (product is NoteModel) {
+        name = product.noteTitle;
+        price = product.notePrice!;
       }
+      var quantity = item['quantity'].toString();
+      var total = (price * item['quantity']).toStringAsFixed(2);
+
+      String itemLine = formatLine(name, quantity, price.toStringAsFixed(2), total);
+      bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
     }
 
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
@@ -145,6 +142,15 @@ class _PrintBillPageState extends State<PrintBillPage> {
             fontWeight: FontWeight.bold,
             color: Color(0xFF414042),
           ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => BillingPage()),
+            );
+          },
         ),
         backgroundColor: Color(0xFF0072BC),
       ),
@@ -222,20 +228,29 @@ class _PrintBillPageState extends State<PrintBillPage> {
                     ),
                   ],
                   rows: widget.items.map((item) {
-                    var product = item['product'] as AddProductModel;
+                    var product = item['product'];
+                    String name = '';
+                    double price = 0.0;
+                    if (product is AddProductModel) {
+                      name = product.noteTitle;
+                      price = product.notePrice!;
+                    } else if (product is NoteModel) {
+                      name = product.noteTitle;
+                      price = product.notePrice!;
+                    }
                     return DataRow(
                       cells: <DataCell>[
-                        DataCell(Text(product.noteTitle)),
+                        DataCell(Text(name)),
                         DataCell(Text(item['quantity'].toString())),
-                        DataCell(Text(product.notePrice!.toStringAsFixed(2))),
-                        DataCell(Text((product.notePrice! * item['quantity']).toStringAsFixed(2))),
+                        DataCell(Text(price.toStringAsFixed(2))),
+                        DataCell(Text((price * item['quantity']).toStringAsFixed(2))),
                       ],
                     );
                   }).toList(),
                 ),
                 SizedBox(height: 20),
                 Center(
-                  child:Text(
+                  child: Text(
                     'Gross Amount: ${widget.grossAmount.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,
@@ -244,7 +259,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
                   ),
                 ),
                 Center(
-                  child:Text(
+                  child: Text(
                     'Discount: ${widget.discount.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 16,

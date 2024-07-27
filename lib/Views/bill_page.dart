@@ -202,7 +202,19 @@ class _BillingPageState extends State<BillingPage> {
         });
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => SalesSummaryPage()),
+          MaterialPageRoute(
+            builder: (context) => PrintBillPage(
+              items: cart,
+              address: '117 Galle Rd, Colombo 00400',
+              billNumber: billNumber,
+              dateTime: DateTime.now(),
+              discount: discount,
+              grossAmount: calculateGrossAmount(cart),
+              netAmount: netAmount,
+              contactNumber: '',
+              user: 'Admin',
+            ),
+          ),
         );
       }
     });
@@ -211,26 +223,26 @@ class _BillingPageState extends State<BillingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         title: Text(
-          'Bill Page',
-          style: GoogleFonts.poppins(
-            fontSize: 22, // Adjust the font size as needed
-            fontWeight: FontWeight.bold, // Adjust the font weight as needed
-            color: Color(0xFFE0FFFF), // Adjust the text color as needed
+        'Bill Page',
+        style: GoogleFonts.poppins(
+        fontSize: 22, // Adjust the font size as needed
+        fontWeight: FontWeight.bold, // Adjust the font weight as needed
+          color: Color(0xFFE0FFFF), // Adjust the text color as needed
+        ),
+        ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardPage()),
+              );
+            },
           ),
+          backgroundColor: Color(0xFF0072BC),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => DashboardPage()),
-            );
-          },
-        ),
-        backgroundColor: Color(0xFF0072BC),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -561,3 +573,4 @@ class _BillingPageState extends State<BillingPage> {
     );
   }
 }
+
