@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:synnex_mobile/Views/bill_page.dart';
 import 'package:synnex_mobile/Views/print_bill.dart'; // Import the PrintBillPage
 
@@ -185,23 +186,8 @@ class _PaymentPageState extends State<PaymentPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 if (color == Colors.green) {
-                  // Navigate to PrintBillPage if the payment is successful
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PrintBillPage(
-                        items: widget.cart,
-                        address: '117 Galle Rd, Colombo 00400',
-                        billNumber: widget.billNumber,
-                        dateTime: DateTime.now(),
-                        discount: widget.discount,
-                        grossAmount: widget.grossAmount,
-                        netAmount: widget.amount,
-                        contactNumber: '',
-                        user: widget.user,
-                      ),
-                    ),
-                  );
+                  // Return true to indicate a successful payment
+                  Navigator.of(context).pop(true);
                 }
               },
               child: const Text(
