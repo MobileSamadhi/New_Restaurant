@@ -18,7 +18,6 @@ class BillingPage extends StatefulWidget {
 }
 
 class _BillingPageState extends State<BillingPage> {
-  static int billCounter = 0;
   late String billNumber;
   late int billId;
   late Future<List<AddProductModel>> products; // Use AddProductModel
@@ -31,7 +30,7 @@ class _BillingPageState extends State<BillingPage> {
   @override
   void initState() {
     super.initState();
-    _getLatestBillNumber();
+    _initializeBillNumber();
     products = AddProductDb().getProducts(); // Fetch the products from SQLite database
     products.then((productList) {
       setState(() {
@@ -47,12 +46,12 @@ class _BillingPageState extends State<BillingPage> {
     super.dispose();
   }
 
-  Future<void> _getLatestBillNumber() async {
-    final dbCartHelper = CartDatabaseHelper(); // Ensure this is the correct instance
+  Future<void> _initializeBillNumber() async {
+    final dbCartHelper = CartDatabaseHelper();
     int latestBillNumber = await dbCartHelper.getLatestBillNumber();
     setState(() {
-      billNumber = (latestBillNumber + 1).toString(); // Set new bill number
-      billId = latestBillNumber + 1; // Initialize billId
+      billNumber = (latestBillNumber + 1).toString();
+      billId = latestBillNumber + 1;
     });
   }
 
@@ -165,7 +164,7 @@ class _BillingPageState extends State<BillingPage> {
                         'price': product.notePrice,
                       }); // Insert the product into the SQLite database
                       // Update bill number for next transaction
-                      _getLatestBillNumber();
+
                     }
                   },
                   child: Text('Add to Cart'),
@@ -200,8 +199,7 @@ class _BillingPageState extends State<BillingPage> {
     ).then((value) {
       if (value == true) {
         setState(() {
-          billCounter++; // Increment bill counter only after successful payment
-          _getLatestBillNumber();
+          _initializeBillNumber();
           cart.clear(); // Clear the cart
           discount = 0.0; // Reset discount
           productSearchController.clear(); // Clear the search field
@@ -293,6 +291,7 @@ class _BillingPageState extends State<BillingPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
           ),
           const SizedBox(height: 10),
+          buildTextField('Bill Number', initialValue: billNumber, readOnly: true),
           const SizedBox(height: 10),
           buildTextField('Date', initialValue: DateFormat('yyyy-MM-dd').format(DateTime.now()), readOnly: true),
         ],
@@ -512,8 +511,15 @@ class _BillingPageState extends State<BillingPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
           ),
           const SizedBox(height: 10),
+          ...cart.map((item) {
+            return buildSummaryRow(
+              '${item['product'].noteTitle} x${item['quantity']}',
+              '${(item['product'].notePrice * item['quantity']).toStringAsFixed(2)}',
+            );
+          }).toList(),
+          const SizedBox(height: 10),
           const Divider(),
-          buildSummaryRow('Bill Number', billNumber),
+         // buildTextField('Bill Number', initialValue: billNumber, readOnly: true),
           buildSummaryRow('Gross Amount', '${grossAmount.toStringAsFixed(2)}'),
           buildSummaryRow('Discount', '-${discount.toStringAsFixed(2)}'),
           buildSummaryRow('Net Amount', '${netAmount.toStringAsFixed(2)}'),
@@ -537,7 +543,8 @@ class _BillingPageState extends State<BillingPage> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () => handlePayBill(netAmount),
-            child: const Text('Pay Bill'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            child: const Text('Print Bill'),
           ),
         ],
       ),
