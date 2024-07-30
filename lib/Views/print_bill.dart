@@ -6,7 +6,7 @@ import '../JsonModels/product_model.dart';
 import 'bill_page.dart'; // Ensure correct import if using AddProductModel
 
 class PrintBillPage extends StatefulWidget {
-  final List<Map<String, dynamic>> items;
+  final List<Map<String, dynamic>> cart; // Add cart
   final String billNumber;
   final DateTime dateTime;
   final String address;
@@ -17,7 +17,7 @@ class PrintBillPage extends StatefulWidget {
   final double netAmount;
 
   PrintBillPage({
-    required this.items,
+    required this.cart,
     required this.billNumber,
     required this.dateTime,
     required this.address,
@@ -26,7 +26,12 @@ class PrintBillPage extends StatefulWidget {
     required this.grossAmount,
     required this.discount,
     required this.netAmount,
-  });
+  })
+  {
+    print('Received Bill Number: $billNumber');
+    print('Received received Items: ${cart.map((item) => item.toString()).join(', ')}');
+// Add other prints to verify values
+  }
 
   @override
   _PrintBillPageState createState() => _PrintBillPageState();
@@ -74,13 +79,13 @@ class _PrintBillPageState extends State<PrintBillPage> {
     bluetooth.printCustom(addRightMargin("Name          Qty     Price     Total", totalWidth: 42), 1, 1);
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
-    for (var item in widget.items) {
+    for (var item in widget.cart) {
       var product = item['product'];
       String name = '';
       double price = 0.0;
       if (product is AddProductModel) {
         name = product.noteTitle;
-        price = product.notePrice!;
+        price = product.notePrice;
       } else if (product is NoteModel) {
         name = product.noteTitle;
         price = product.notePrice!;
@@ -227,13 +232,13 @@ class _PrintBillPageState extends State<PrintBillPage> {
                       ),
                     ),
                   ],
-                  rows: widget.items.map((item) {
+                  rows: widget.cart.map((item) {
                     var product = item['product'];
                     String name = '';
                     double price = 0.0;
                     if (product is AddProductModel) {
                       name = product.noteTitle;
-                      price = product.notePrice!;
+                      price = product.notePrice;
                     } else if (product is NoteModel) {
                       name = product.noteTitle;
                       price = product.notePrice!;

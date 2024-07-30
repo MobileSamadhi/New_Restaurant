@@ -139,7 +139,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PrintBillPage(
-                              items: widget.cart,
+                              cart: widget.cart,
                               address: '117 Galle Rd, Colombo 00400',
                               billNumber: widget.billNumber,
                               dateTime: DateTime.now(),
@@ -183,10 +183,6 @@ class _PaymentPageState extends State<PaymentPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                if (color == Colors.green) {
-                  // Return true to indicate a successful payment
-                  Navigator.of(context).pop(true);
-                }
               },
               child: const Text(
                 'OK',
@@ -282,8 +278,25 @@ class _PaymentPageState extends State<PaymentPage> {
                   setState(() {
                     _paymentSuccess = true; // Update payment success status
                   });
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
                   _showMessage(context, 'Payment Result', 'Payment Successful', Colors.green);
+                  // Navigate to PrintBillPage
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PrintBillPage(
+                        cart: widget.cart,
+                        address: '117 Galle Rd, Colombo 00400',
+                        billNumber: widget.billNumber,
+                        dateTime: DateTime.now(),
+                        discount: widget.discount,
+                        grossAmount: widget.grossAmount,
+                        netAmount: widget.amount,
+                        contactNumber: '',
+                        user: widget.user,
+                      ),
+                    ),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -376,6 +389,23 @@ class _PaymentPageState extends State<PaymentPage> {
                   });
                   Navigator.of(context).pop();
                   _showMessage(context, 'Payment Result', 'Payment Successful', Colors.green);
+                  // Navigate to PrintBillPage
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PrintBillPage(
+                        cart: widget.cart,
+                        address: '117 Galle Rd, Colombo 00400',
+                        billNumber: widget.billNumber,
+                        dateTime: DateTime.now(),
+                        discount: widget.discount,
+                        grossAmount: widget.grossAmount,
+                        netAmount: widget.amount,
+                        contactNumber: '',
+                        user: widget.user,
+                      ),
+                    ),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -388,4 +418,5 @@ class _PaymentPageState extends State<PaymentPage> {
       },
     );
   }
+
 }

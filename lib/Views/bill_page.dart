@@ -18,7 +18,7 @@ class BillingPage extends StatefulWidget {
 }
 
 class _BillingPageState extends State<BillingPage> {
-  static int billCounter = 1;
+  static int billCounter = 0;
   late String billNumber;
   late int billId;
   late Future<List<AddProductModel>> products; // Use AddProductModel
@@ -31,8 +31,7 @@ class _BillingPageState extends State<BillingPage> {
   @override
   void initState() {
     super.initState();
-    billNumber = billCounter.toString();
-    billId = billCounter; // Initialize billId
+    _getLatestBillNumber();
     products = AddProductDb().getProducts(); // Fetch the products from SQLite database
     products.then((productList) {
       setState(() {
@@ -46,6 +45,15 @@ class _BillingPageState extends State<BillingPage> {
   void dispose() {
     productSearchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _getLatestBillNumber() async {
+    final dbCartHelper = CartDatabaseHelper(); // Ensure this is the correct instance
+    int latestBillNumber = await dbCartHelper.getLatestBillNumber();
+    setState(() {
+      billNumber = (latestBillNumber + 1).toString(); // Set new bill number
+      billId = latestBillNumber + 1; // Initialize billId
+    });
   }
 
   void _filterProducts() {
@@ -156,6 +164,8 @@ class _BillingPageState extends State<BillingPage> {
                         'quantity': quantity,
                         'price': product.notePrice,
                       }); // Insert the product into the SQLite database
+                      // Update bill number for next transaction
+                      _getLatestBillNumber();
                     }
                   },
                   child: Text('Add to Cart'),
@@ -191,8 +201,7 @@ class _BillingPageState extends State<BillingPage> {
       if (value == true) {
         setState(() {
           billCounter++; // Increment bill counter only after successful payment
-          billNumber = billCounter.toString();
-          billId = billCounter;
+          _getLatestBillNumber();
           cart.clear(); // Clear the cart
           discount = 0.0; // Reset discount
           productSearchController.clear(); // Clear the search field
@@ -204,7 +213,7 @@ class _BillingPageState extends State<BillingPage> {
           context,
           MaterialPageRoute(
             builder: (context) => PrintBillPage(
-              items: cart,
+              cart: cart,
               address: '117 Galle Rd, Colombo 00400',
               billNumber: billNumber,
               dateTime: DateTime.now(),
@@ -223,26 +232,26 @@ class _BillingPageState extends State<BillingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text(
-        'Bill Page',
-        style: GoogleFonts.poppins(
-        fontSize: 22, // Adjust the font size as needed
-        fontWeight: FontWeight.bold, // Adjust the font weight as needed
-          color: Color(0xFFE0FFFF), // Adjust the text color as needed
-        ),
-        ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => DashboardPage()),
-              );
-            },
+          'Bill Page',
+          style: GoogleFonts.poppins(
+            fontSize: 22, // Adjust the font size as needed
+            fontWeight: FontWeight.bold, // Adjust the font weight as needed
+            color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
-          backgroundColor: Color(0xFF0072BC),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardPage()),
+            );
+          },
+        ),
+        backgroundColor: Color(0xFF0072BC),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -284,16 +293,6 @@ class _BillingPageState extends State<BillingPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(child: buildTextField('Bill Number', initialValue: billNumber, readOnly: true)),
-              const SizedBox(width: 10),
-            ],
-          ),
-          const SizedBox(height: 10),
-          buildTextField('Name'),
-          const SizedBox(height: 10),
-          buildTextField('Location'),
           const SizedBox(height: 10),
           buildTextField('Date', initialValue: DateFormat('yyyy-MM-dd').format(DateTime.now()), readOnly: true),
         ],
@@ -513,13 +512,8 @@ class _BillingPageState extends State<BillingPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
           ),
           const SizedBox(height: 10),
-          ...cart.map((item) {
-            return buildSummaryRow(
-              '${item['product'].noteTitle} x${item['quantity']}',
-              '${(item['product'].notePrice * item['quantity']).toStringAsFixed(2)}',
-            );
-          }).toList(),
           const Divider(),
+          buildSummaryRow('Bill Number', billNumber),
           buildSummaryRow('Gross Amount', '${grossAmount.toStringAsFixed(2)}'),
           buildSummaryRow('Discount', '-${discount.toStringAsFixed(2)}'),
           buildSummaryRow('Net Amount', '${netAmount.toStringAsFixed(2)}'),
@@ -533,33 +527,22 @@ class _BillingPageState extends State<BillingPage> {
                 borderSide: BorderSide(color: Color(0xFF0072BC)),
               ),
             ),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            keyboardType: TextInputType.number,
             onChanged: (value) {
               setState(() {
-                discount = double.tryParse(value) ?? 0.0;
+                discount = double.tryParse(value) ?? 0.0; // Handle discount value parsing
               });
             },
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    handlePayBill(netAmount); // Use the updated method
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: const Text('Pay Bill'),
-                ),
-              ),
-              const SizedBox(width: 10),
-            ],
+          ElevatedButton(
+            onPressed: () => handlePayBill(netAmount),
+            child: const Text('Pay Bill'),
           ),
         ],
       ),
     );
   }
-
   Widget buildSummaryRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -573,4 +556,3 @@ class _BillingPageState extends State<BillingPage> {
     );
   }
 }
-

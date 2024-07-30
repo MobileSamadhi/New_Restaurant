@@ -58,4 +58,9 @@ class AddProductModel {
       noteImage: map['noteImage'],
     );
   }
+
+  @override
+  String toString() {
+    return 'AddProductModel(noteId: $noteId, noteTitle: $noteTitle, notePrice: $notePrice, noteContent: $noteContent, noteCategory: $noteCategory, date: $date, time: $time, noteStock: $noteStock, saleStock: $saleStock, availableStock: $availableStock, noteImage: $noteImage)';
+  }
 }

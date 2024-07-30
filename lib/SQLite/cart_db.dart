@@ -70,4 +70,21 @@ class CartDatabaseHelper {
     WHERE date BETWEEN ? AND ?
   ''', [startDate, endDate]);
   }
+
+
+  Future<int> getLatestBillNumber() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT billId FROM cart ORDER BY billId DESC LIMIT 1');
+    if (result.isNotEmpty) {
+      return result.first['billId'] as int;
+    } else {
+      return 0; // No bills found, start with 0
+    }
+  }
+
+  Future<void> insertPayment( ) async {
+    // Insert payment method
+    final db = await database;
+    await db.insert('payments', {/* payment details */});
+  }
 }
