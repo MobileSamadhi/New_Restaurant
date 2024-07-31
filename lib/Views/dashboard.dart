@@ -27,7 +27,7 @@ class DashboardPage extends StatelessWidget {
             );
           },
         ),
-        backgroundColor: Color(0xFF0072BC), // Blue color
+        backgroundColor: Color(0xFFad6c47), // Blue color
         centerTitle: true,
         elevation: 5,
         actions: [
@@ -47,7 +47,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Product Category',
-                        Color(0xFF1ABC9C), // Green color
+                        Color(0xFFad6c47), // Green color
                         Icons.category,
                         ProductCategoryPage(),
                       ),
@@ -55,7 +55,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Go to Product',
-                        Color(0xFF3498DB), // Blue color
+                        Color(0xFFF0E1DA), // Blue color
                         Icons.shopping_bag,
                         Products(),
                       ),
@@ -63,7 +63,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Company Details',
-                        Color(0xFF9B59B6), // Purple color
+                        Color(0xFFDAB3AC), // Purple color
                         Icons.business,
                         CompanyDetailsPage(),
                       ),
@@ -96,7 +96,7 @@ class DashboardPage extends StatelessWidget {
             color: Colors.white,
             padding: const EdgeInsets.all(8),
             child: Text(
-              'Powered by Synnex IT Solution by 2024',
+              'Powered by Synnex IT Solution 2024',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:synnex_mobile/Views/bill_page.dart';
 import 'package:synnex_mobile/Views/print_bill.dart'; // Import the PrintBillPage
 
 class PaymentPage extends StatefulWidget {
@@ -52,15 +54,17 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title:  Text(
           'Payment Options',
-          style: TextStyle(
-            fontSize: 25, // Adjust the font size as needed
-            fontWeight: FontWeight.bold, // Adjust the font weight as needed
-            color: Color(0xFF414042), // Adjust the text color as needed
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFE0FFFF),
           ),
         ),
+
         backgroundColor: const Color(0xFF0072bc),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
         child: Container(
