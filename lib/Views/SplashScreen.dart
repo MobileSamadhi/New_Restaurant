@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'CINNAMON DINE',
+                  'CINNAMON DINE MOBI',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,

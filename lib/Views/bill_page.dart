@@ -18,6 +18,7 @@ class BillingPage extends StatefulWidget {
 }
 
 class _BillingPageState extends State<BillingPage> {
+  late Future<void> _initializationFuture;
   late String billNumber;
   late int billId;
   late Future<List<AddProductModel>> products; // Use AddProductModel
@@ -30,7 +31,7 @@ class _BillingPageState extends State<BillingPage> {
   @override
   void initState() {
     super.initState();
-    _initializeBillNumber();
+    _initializationFuture = _initializeBillNumber();
     products = AddProductDb().getProducts(); // Fetch the products from SQLite database
     products.then((productList) {
       setState(() {
@@ -163,8 +164,6 @@ class _BillingPageState extends State<BillingPage> {
                         'quantity': quantity,
                         'price': product.notePrice,
                       }); // Insert the product into the SQLite database
-                      // Update bill number for next transaction
-
                     }
                   },
                   child: Text('Add to Cart'),
@@ -229,43 +228,80 @@ class _BillingPageState extends State<BillingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Bill Page',
-          style: GoogleFonts.poppins(
-            fontSize: 22, // Adjust the font size as needed
-            fontWeight: FontWeight.bold, // Adjust the font weight as needed
-            color: Color(0xFFE0FFFF), // Adjust the text color as needed
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => DashboardPage()),
-            );
-          },
-        ),
-        backgroundColor: Color(0xFF470404),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                buildBillInfoContainer(),
-                const SizedBox(height: 20),
-                buildProductsContainer(),
-                const SizedBox(height: 20),
-                buildBillingSummaryContainer(context),
-              ],
+    return FutureBuilder<void>(
+      future: _initializationFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Bill Page',
+                style: GoogleFonts.poppins(
+                  fontSize: 22, // Adjust the font size as needed
+                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
+                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                ),
+              ),
+              backgroundColor: Color(0xFF470404),
             ),
-          ),
-        ),
-      ),
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Bill Page',
+                style: GoogleFonts.poppins(
+                  fontSize: 22, // Adjust the font size as needed
+                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
+                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                ),
+              ),
+              backgroundColor: Color(0xFF470404),
+            ),
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Bill Page',
+                style: GoogleFonts.poppins(
+                  fontSize: 22, // Adjust the font size as needed
+                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
+                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                ),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => DashboardPage()),
+                  );
+                },
+              ),
+              backgroundColor: Color(0xFF470404),
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      buildBillInfoContainer(),
+                      const SizedBox(height: 20),
+                      buildProductsContainer(),
+                      const SizedBox(height: 20),
+                      buildBillingSummaryContainer(context),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -519,7 +555,6 @@ class _BillingPageState extends State<BillingPage> {
           }).toList(),
           const SizedBox(height: 10),
           const Divider(),
-         // buildTextField('Bill Number', initialValue: billNumber, readOnly: true),
           buildSummaryRow('Gross Amount', '${grossAmount.toStringAsFixed(2)}'),
           buildSummaryRow('Discount', '-${discount.toStringAsFixed(2)}'),
           buildSummaryRow('Net Amount', '${netAmount.toStringAsFixed(2)}'),
@@ -543,17 +578,17 @@ class _BillingPageState extends State<BillingPage> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () => handlePayBill(netAmount),
-            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 150.0),),
-            child: const Text('Pay Bill',
-              style: TextStyle(
-                color: Colors.white, // Your color code here
-              ),
-            ),
+               style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 150.0),),
+               child: const Text('Pay Bill',
+               style: TextStyle(
+               color: Colors.white,
+    ),
           ),
-        ],
+          ), ],
       ),
     );
   }
+
   Widget buildSummaryRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),

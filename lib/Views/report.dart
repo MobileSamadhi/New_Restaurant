@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'dashboard.dart';
 
 class DBHelper {
@@ -64,11 +65,14 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
 
+  final BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
+
   @override
   void initState() {
     super.initState();
     startDateController = TextEditingController();
     endDateController = TextEditingController();
+    connectToPrinter();
   }
 
   @override
@@ -76,6 +80,13 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     startDateController.dispose();
     endDateController.dispose();
     super.dispose();
+  }
+
+  Future<void> connectToPrinter() async {
+    List<BluetoothDevice> devices = await bluetooth.getBondedDevices();
+    if (devices.isNotEmpty) {
+      await bluetooth.connect(devices[0]);
+    }
   }
 
   Future<void> _fetchCartItems(String startDate, String endDate) async {
@@ -172,6 +183,77 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     await Printing.sharePdf(bytes: await pdf.save(), filename: 'sales_summary.pdf');
   }
 
+  Future<void> _printSummary() async {
+    String addCenterMargin(String text, {int totalWidth = 42}) {
+      int padding = (totalWidth - text.length) ~/ 2;
+      return ' ' * padding + text + ' ' * padding;
+    }
+
+    String addRightMargin(String text, {int totalWidth = 42, int rightMargin = 10}) {
+      int padding = totalWidth - text.length - rightMargin;
+      return text.padRight(totalWidth - rightMargin);
+    }
+
+    String currentDateTime = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+
+    bluetooth.printCustom("", 1, 1);
+    bluetooth.printCustom(addCenterMargin("Sales Summary", totalWidth: 42), 5, 1);
+    bluetooth.printNewLine();
+
+    bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 5, 1);
+    bluetooth.printNewLine();
+    bluetooth.printCustom(addCenterMargin("117 Galle Rd, Colombo 00400", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Contact No: 0777452345", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
+    bluetooth.printCustom(addCenterMargin("Date: $currentDateTime", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
+    bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addRightMargin("Date Range: ${startDateController.text} to ${endDateController.text}", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
+
+    bluetooth.printCustom("Product Name     Qty     Price     Total", 1, 1);
+    bluetooth.printCustom("------------------------------------------", 1, 1);
+
+    for (var item in cartItems) {
+      String name = item['productName'];
+      int quantity = item['quantity'];
+      double price = item['price'];
+      double total = price * quantity;
+
+      String itemLine = formatLine(name, quantity.toString(), price.toStringAsFixed(2), total.toStringAsFixed(2));
+      bluetooth.printCustom(itemLine, 1, 1);
+    }
+
+    bluetooth.printCustom("------------------------------------------", 1, 1);
+    bluetooth.printNewLine();
+    bluetooth.printCustom("Total Quantity: ${cartItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}", 1, 1);
+    bluetooth.printCustom("Total Sales: ${cartItems.fold<double>(0, (sum, item) => sum + item['price'] * item['quantity']).toStringAsFixed(2)}", 1, 1);
+    bluetooth.printNewLine();
+
+    bluetooth.printCustom(addCenterMargin("Thank You, Come Again!", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Software provided by", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
+
+    bluetooth.printCustom("", 1, 1);
+    bluetooth.paperCut();
+  }
+
+  String formatLine(String name, String qty, String price, String total) {
+    const int nameWidth = 12;
+    const int qtyWidth = 6;
+    const int priceWidth = 9;
+    const int totalWidth = 10;
+
+    String paddedName = (name.length > nameWidth) ? name.substring(0, nameWidth) : name.padRight(nameWidth);
+    String paddedQty = qty.padLeft(qtyWidth);
+    String paddedPrice = price.padLeft(priceWidth);
+    String paddedTotal = total.padLeft(totalWidth);
+
+    return '$paddedName$paddedQty$paddedPrice$paddedTotal';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,7 +264,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
             fontWeight: FontWeight.bold, // Adjust the font weight as needed
             color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
-         ),
+        ),
         backgroundColor: Color(0xFF470404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white,),
@@ -246,6 +328,14 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
             ElevatedButton(
               onPressed: _generatePDF,
               child: Text('Download PDF Report'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _printSummary,
+              child: Text('Print Report'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
               ),
@@ -323,7 +413,6 @@ class SalesSummaryTable extends StatelessWidget {
   Widget build(BuildContext context) {
     int totalQuantity = 0;
     double totalSales = 0.0;
-
 
     for (var item in cartItems) {
       totalQuantity += (item['quantity'] ?? 0) as int;
