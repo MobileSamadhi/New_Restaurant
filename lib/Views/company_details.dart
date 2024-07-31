@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../JsonModels/company_model.dart';
 import '../SQLite/db_helper.dart';
@@ -49,6 +50,20 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
     }
   }
 
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (selectedDate != null) {
+      final formattedDate = "${selectedDate.toLocal()}".split(' ')[0]; // Format to YYYY-MM-DD
+      controller.text = formattedDate;
+    }
+  }
+
   Future<void> _saveCompanyDetails() async {
     if (_formKey.currentState!.validate()) {
       CompanyModel company = CompanyModel(
@@ -89,7 +104,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
             fontWeight: FontWeight.bold, // Adjust the font weight as needed
             color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
-          ),
+        ),
         backgroundColor: Color(0xFF470404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white,),
@@ -128,30 +143,35 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the phone number';
                   }
-                  if (!RegExp(r'^\+?[0-9]{10,15}$').hasMatch(value)) {
-                    return 'Please enter a valid phone number';
+                  if (value.length != 10) {
+                    return 'Phone number must be exactly 10 digits';
                   }
                   return null;
                 }),
                 buildDivider(),
-                buildEditableField('Start Date:', _startDateController, validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the start date';
-                  }
-                  // You can add more date validation here if needed
-                  return null;
-                }),
+                buildEditableField(
+                  'Start Date:',
+                  _startDateController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the start date';
+                    }
+                    try {
+                      DateTime.parse(value); // Check if the value can be parsed as a date
+                    } catch (e) {
+                      return 'Please enter a valid date in YYYY-MM-DD format';
+                    }
+                    return null;
+                  },
+                  iconButton: IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context, _startDateController),
+                  ),
+                ),
                 buildDivider(),
                 buildEditableField('Version No:', _versionController, validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the version number';
-                  }
-                  return null;
-                }),
-                buildDivider(),
-                buildEditableField('Logo Path:', _logoPathController, validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the logo path';
                   }
                   return null;
                 }),
@@ -187,7 +207,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
     );
   }
 
-  Widget buildEditableField(String label, TextEditingController controller, {String? Function(String?)? validator}) {
+  Widget buildEditableField(String label, TextEditingController controller, {String? Function(String?)? validator, IconButton? iconButton}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -206,7 +226,10 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            suffixIcon: iconButton, // Add the icon button here
           ),
+          keyboardType: label == 'Phone No:' ? TextInputType.phone : TextInputType.text,
+          inputFormatters: label == 'Phone No:' ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)] : [],
           validator: validator,
         ),
         SizedBox(height: 10),
