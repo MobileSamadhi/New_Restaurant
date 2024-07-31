@@ -8,6 +8,7 @@ import 'package:synnex_mobile/Views/product_category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../JsonModels/add_product_model.dart';
+import '../SQLite/sqlite.dart';
 import 'bill_page.dart';
 import 'dashboard.dart';
 
@@ -22,6 +23,7 @@ class _ProductsState extends State<Products> {
   late AddProductDb handler;
   late Future<List<AddProductModel>> products;
   final db = AddProductDb();
+  final database = DatabaseHelper();
 
   final title = TextEditingController();
   final content = TextEditingController();
@@ -50,14 +52,14 @@ class _ProductsState extends State<Products> {
   }
 
   Future<List<AddProductModel>> searchProduct() {
-    return handler.getProducts();
+    return handler.searchProducts(keyword.text);
   }
 
   Future<List<AddProductModel>> filterProductsByCategory() async {
     if (selectedCategory == null || selectedCategory == 'All') {
       return getAllProducts();
     } else {
-      return handler.getProducts();
+      return handler.getProductsByCategory(selectedCategory!);
     }
   }
 
@@ -69,9 +71,9 @@ class _ProductsState extends State<Products> {
 
   void fetchCategories() async {
     try {
-      final fetchedCategories = await db.getProducts();
+      final fetchedCategories = await database.getCategories();
       setState(() {
-        categories = ['All', ...fetchedCategories.map((category) => category.noteCategory)];
+        categories = ['All', ...fetchedCategories.map((category) => category.categoryName)];
         selectedCategory = categories.isNotEmpty ? categories[0] : 'All';
       });
       print("Fetched categories: $categories");
@@ -171,7 +173,7 @@ class _ProductsState extends State<Products> {
                   border: InputBorder.none,
                   icon: Icon(Icons.search, color: Color(0xFF414042)),
                   hintText: "Search",
-                  hintStyle: TextStyle(color: Color(0xFF414042)),
+                  hintStyle: TextStyle(color: Color(0xFF470404)),
                 ),
               ),
             ),

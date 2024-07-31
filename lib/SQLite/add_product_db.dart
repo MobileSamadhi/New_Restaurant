@@ -48,6 +48,20 @@ class AddProductDb {
     return await db.insert('products', product.toMap());
   }
 
+  // Method to search products by keyword
+  Future<List<AddProductModel>> searchProducts(String keyword) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'products',
+      where: 'noteTitle LIKE ?',
+      whereArgs: ['%$keyword%'],
+    );
+
+    return List.generate(maps.length, (i) {
+      return AddProductModel.fromMap(maps[i]);
+    });
+  }
+
   Future<List<AddProductModel>> getProducts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('products');
@@ -75,19 +89,22 @@ class AddProductDb {
       whereArgs: [id],
     );
   }
-  Future<List<AddProductModel>> filterProductsByCategory(String category) async {
-    final db = await database;
-    if (category == "All") {
-      // Fetch all notes if the category is "All"
-      return getProducts();
-    } else {
-      // Fetch notes filtered by category
-      List<Map<String, dynamic>> maps = await db.query('notes', where: 'noteCategory = ?', whereArgs: [category]);
 
-      return List.generate(maps.length, (i) {
-        return AddProductModel.fromMap(maps[i]);
-      });
-     }
+  // Method to get products by category
+  Future<List<AddProductModel>> getProductsByCategory(String category) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'products',
+      where: 'noteCategory = ?',
+      whereArgs: [category],
+    );
+
+    return List.generate(maps.length, (i) {
+      return AddProductModel.fromMap(maps[i]);
+    });
   }
+
+
+
 }
 
