@@ -8,12 +8,14 @@ import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import '../JsonModels/company_model.dart';
+import '../SQLite/db_helper.dart';
 import 'dashboard.dart';
 
-class DBHelper {
-  DBHelper._();
+class DBHelper1 {
+  DBHelper1._();
 
-  static final DBHelper instance = DBHelper._();
+  static final DBHelper1 instance = DBHelper1._();
   static Database? _database;
 
   Future<Database> get database async {
@@ -64,6 +66,8 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
   late TextEditingController endDateController;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
+  final DBHelper dbHelper = DBHelper();
+  CompanyModel? company;
 
   final BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
 
@@ -73,6 +77,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     startDateController = TextEditingController();
     endDateController = TextEditingController();
     connectToPrinter();
+    _loadCompanyDetails();
   }
 
   @override
@@ -80,6 +85,13 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     startDateController.dispose();
     endDateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCompanyDetails() async {
+    CompanyModel? fetchedCompany = await dbHelper.getCompany(1);
+    setState(() {
+      company = fetchedCompany;
+    });
   }
 
   Future<void> connectToPrinter() async {
@@ -90,7 +102,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
   }
 
   Future<void> _fetchCartItems(String startDate, String endDate) async {
-    List<Map<String, dynamic>> items = await DBHelper.instance.getCartItems(
+    List<Map<String, dynamic>> items = await DBHelper1.instance.getCartItems(
         startDate: startDate, endDate: endDate);
     setState(() {
       cartItems = items;
@@ -200,10 +212,10 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     bluetooth.printCustom(addCenterMargin("Sales Summary", totalWidth: 42), 5, 1);
     bluetooth.printNewLine();
 
-    bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 5, 1);
+    bluetooth.printCustom(company!.companyName, 3, 1);
     bluetooth.printNewLine();
-    bluetooth.printCustom(addCenterMargin("117 Galle Rd, Colombo 00400", totalWidth: 42), 1, 1);
-    bluetooth.printCustom(addCenterMargin("Contact No: 0777452345", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(company!.address, 1, 1);
+    bluetooth.printCustom(company!.phone, 1, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(addCenterMargin("Date: $currentDateTime", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();

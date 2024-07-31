@@ -402,14 +402,13 @@ class _PaymentPageState extends State<PaymentPage> {
                     MaterialPageRoute(
                       builder: (context) => PrintBillPage(
                         cart: widget.cart,
-                        address: '117 Galle Rd, Colombo 00400',
                         billNumber: widget.billNumber,
                         dateTime: DateTime.now(),
                         discount: widget.discount,
                         grossAmount: widget.grossAmount,
                         netAmount: widget.amount,
                         contactNumber: '',
-                        user: widget.user,
+                        user: widget.user, address: '',
                       ),
                     ),
                   );
@@ -418,7 +417,8 @@ class _PaymentPageState extends State<PaymentPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF470404),
               ),
-              child: const Text('Submit'),
+              child: const Text('Submit',style: TextStyle(
+                  color: Colors.white),),
             ),
           ],
         );

@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import '../JsonModels/add_product_model.dart';
+import '../JsonModels/company_model.dart';
 import '../JsonModels/product_model.dart';
+import '../SQLite/db_helper.dart';
 import 'bill_page.dart'; // Ensure correct import if using AddProductModel
 
 class PrintBillPage extends StatefulWidget {
@@ -39,13 +41,25 @@ class PrintBillPage extends StatefulWidget {
 }
 
 class _PrintBillPageState extends State<PrintBillPage> {
+  final DBHelper dbHelper = DBHelper();
+  CompanyModel? company;
   final BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
+
 
   @override
   void initState() {
     super.initState();
     connectToPrinter();
+    _loadCompanyDetails();
   }
+
+  Future<void> _loadCompanyDetails() async {
+    CompanyModel? fetchedCompany = await dbHelper.getCompany(1);
+    setState(() {
+      company = fetchedCompany;
+    });
+  }
+
 
   Future<void> connectToPrinter() async {
     List<BluetoothDevice> devices = await bluetooth.getBondedDevices();
@@ -65,14 +79,15 @@ class _PrintBillPageState extends State<PrintBillPage> {
       return text.padRight(totalWidth - rightMargin);
     }
 
-    bluetooth.printCustom("", 1, 1);
-    bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 5, 1);
+    if (company == null) return;
+
+    bluetooth.printCustom(company!.companyName, 3, 1);
     bluetooth.printNewLine();
-    bluetooth.printCustom(addCenterMargin("117 Galle Rd, Colombo 00400", totalWidth: 42), 1, 1);
-    bluetooth.printCustom(addCenterMargin("Contact No: 0777452345", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(company!.address, 1, 1);
+    bluetooth.printCustom(company!.phone, 1, 1);
     bluetooth.printNewLine();
-    bluetooth.printCustom(addRightMargin("Bill No: ${widget.billNumber}", totalWidth: 42), 1, 1);
-    bluetooth.printCustom(addRightMargin("Date: ${DateFormat('yyyy-MM-dd HH:mm').format(widget.dateTime)}", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Bill No: ${widget.billNumber}", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Date: ${DateFormat('yyyy-MM-dd HH:mm').format(widget.dateTime)}", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
@@ -162,29 +177,48 @@ class _PrintBillPageState extends State<PrintBillPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    widget.address,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+    child: Center(
+    child: company == null
+    ? CircularProgressIndicator()
+        : Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(10),
+    color: Colors.grey[200],
+    boxShadow: [
+    BoxShadow(
+    color: Colors.grey.withOpacity(0.5),
+    blurRadius: 10,
+    offset: Offset(0, 5),
+    ),
+    ],
+    ),
+    child: Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+                Text(
+                  company!.companyName,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0072bc),
                   ),
                 ),
                 SizedBox(height: 5),
-                Center(
-                  child: Text(
-                    'Contact No: ${widget.contactNumber}',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                Text(
+                  company!.address,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  company!.phone,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 5),
@@ -329,6 +363,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
