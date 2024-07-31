@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:synnex_mobile/JsonModels/product_model.dart';
-import 'package:synnex_mobile/SQLite/sqlite.dart';
+import 'package:synnex_mobile/SQLite/add_product_db.dart';
 import 'package:synnex_mobile/Views/add_product.dart';
 import 'package:synnex_mobile/Views/product_category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../JsonModels/add_product_model.dart';
 import 'bill_page.dart';
 import 'dashboard.dart';
 
@@ -18,9 +19,9 @@ class Products extends StatefulWidget {
 }
 
 class _ProductsState extends State<Products> {
-  late DatabaseHelper handler;
-  late Future<List<NoteModel>> notes;
-  final db = DatabaseHelper();
+  late AddProductDb handler;
+  late Future<List<AddProductModel>> products;
+  final db = AddProductDb();
 
   final title = TextEditingController();
   final content = TextEditingController();
@@ -33,44 +34,44 @@ class _ProductsState extends State<Products> {
   @override
   void initState() {
     super.initState();
-    handler = DatabaseHelper();
-    notes = handler.getNotes();
+    handler = AddProductDb();
+    products = handler.getProducts();
 
-    handler.initDB().whenComplete(() {
+    handler.database.whenComplete(() {
       setState(() {
-        notes = getAllNotes();
+        products = getAllProducts();
         fetchCategories();
       });
     });
   }
 
-  Future<List<NoteModel>> getAllNotes() {
-    return handler.getNotes();
+  Future<List<AddProductModel>> getAllProducts() {
+    return handler.getProducts();
   }
 
-  Future<List<NoteModel>> searchNote() {
-    return handler.searchNotes(keyword.text);
+  Future<List<AddProductModel>> searchProduct() {
+    return handler.getProducts();
   }
 
-  Future<List<NoteModel>> filterNotesByCategory() async {
+  Future<List<AddProductModel>> filterProductsByCategory() async {
     if (selectedCategory == null || selectedCategory == 'All') {
-      return getAllNotes();
+      return getAllProducts();
     } else {
-      return handler.getNotesByCategory(selectedCategory!);
+      return handler.getProducts();
     }
   }
 
   Future<void> _refresh() async {
     setState(() {
-      notes = filterNotesByCategory();
+      products = filterProductsByCategory();
     });
   }
 
   void fetchCategories() async {
     try {
-      final fetchedCategories = await db.getCategories();
+      final fetchedCategories = await db.getProducts();
       setState(() {
-        categories = ['All', ...fetchedCategories.map((category) => category.categoryName)];
+        categories = ['All', ...fetchedCategories.map((category) => category.noteCategory)];
         selectedCategory = categories.isNotEmpty ? categories[0] : 'All';
       });
       print("Fetched categories: $categories");
@@ -162,7 +163,7 @@ class _ProductsState extends State<Products> {
                 controller: keyword,
                 onChanged: (value) {
                   setState(() {
-                    notes = value.isNotEmpty ? searchNote() : filterNotesByCategory();
+                    products = value.isNotEmpty ? searchProduct() : filterProductsByCategory();
                   });
                 },
                 style: TextStyle(color: Colors.white),
@@ -190,14 +191,14 @@ class _ProductsState extends State<Products> {
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedCategory = newValue;
-                    notes = filterNotesByCategory();
+                    products = filterProductsByCategory();
                   });
                 },
               ),
             ),
-            FutureBuilder<List<NoteModel>>(
-              future: notes,
-              builder: (BuildContext context, AsyncSnapshot<List<NoteModel>> snapshot) {
+            FutureBuilder<List<AddProductModel>>(
+              future: products,
+              builder: (BuildContext context, AsyncSnapshot<List<AddProductModel>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasData && snapshot.data!.isEmpty) {
@@ -205,7 +206,7 @@ class _ProductsState extends State<Products> {
                 } else if (snapshot.hasError) {
                   return Text(snapshot.error.toString());
                 } else {
-                  final items = snapshot.data ?? <NoteModel>[];
+                  final items = snapshot.data ?? <AddProductModel>[];
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -248,7 +249,7 @@ class _ProductsState extends State<Products> {
                                 : FileImage(File(imagePath)) as ImageProvider,
                           ),
                           subtitle: Text(
-                            DateFormat("yMd").format(DateTime.parse(items[index].createdAt)),
+                            DateFormat("yMd").format(DateTime.parse(items[index].date)),
                             style: TextStyle(color: Color(0xFF414042)),
                           ),
                           title: Text(
@@ -270,127 +271,134 @@ class _ProductsState extends State<Products> {
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
-                                          actions: [
+                                        actions: [
                                           Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  db.updateProduct(AddProductModel(
+                                                    noteId: items[index].noteId,
+                                                    noteTitle: title.text,
+                                                    noteContent: content.text,
+                                                    notePrice: double.parse(price.text),
+                                                    noteCategory: items[index].noteCategory,
+                                                    date: items[index].date,
+                                                    time: items[index].time,
+                                                    noteStock: items[index].noteStock,
+                                                    saleStock: items[index].saleStock,
+                                                    availableStock: items[index].availableStock,
+                                                    noteImage: items[index].noteImage,
+                                                  )).whenComplete(() {
+                                                    _refresh();
+                                                    Navigator.pop(context);
+                                                  });
+                                                },
+                                                child: const Text("Update"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Cancel"),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                        title: const Text("Update Product"),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                          TextButton(
-                                          onPressed: () {
-                                        db.updateNote(
-                                          title.text,
-                                          content.text,
-                                          double.parse(price.text),
-                                          items[index].noteId,
-                                        ).whenComplete(() {
-                                          _refresh();
-                                          Navigator.pop(context);
-                                        });
-                                      },
-                                      child: const Text("Update"),
-                                      ),
-                                      TextButton(
-                                      onPressed: () {
-                                      Navigator.pop(context);
-                                      },
-                                      child: const Text("Cancel"),
-                                      ),
-                                      ],
-                                      ),
-                                      ],
-                                      title: const Text("Update Product"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: title,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Product Name is required";
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: "Product Name",
-                          ),
-                        ),
-                        TextFormField(
-                          controller: content,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Quantity is required";
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: "Quantity",
-                          ),
-                        ),
-                        TextFormField(
-                          controller: price,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Price is required";
-                            }
-                            return null;
-                          },
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: "Price",
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Color(0xFF414042)), // Delete icon color
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Delete Item"),
-                    content: Text("Are you sure you want to delete this Item?"),
-                    actions: <Widget>[
-                      TextButton( // Changed FlatButton to TextButton
-                        child: Text("Cancel"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      TextButton( // Changed FlatButton to TextButton
-                        child: Text("Delete"),
-                        onPressed: () {
-                          db.deleteNote(items[index].noteId!).whenComplete(() {
-                            _refresh();
-                          });
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
+                                            TextFormField(
+                                              controller: title,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return "Product Name is required";
+                                                }
+                                                return null;
+                                              },
+                                              decoration: const InputDecoration(
+                                                labelText: "Product Name",
+                                              ),
+                                            ),
+                                            TextFormField(
+                                              controller: content,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return "Quantity is required";
+                                                }
+                                                return null;
+                                              },
+                                              decoration: const InputDecoration(
+                                                labelText: "Quantity",
+                                              ),
+                                            ),
+                                            TextFormField(
+                                              controller: price,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return "Price is required";
+                                                }
+                                                return null;
+                                              },
+                                              keyboardType: TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                labelText: "Price",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Color(0xFF414042)), // Delete icon color
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Delete Item"),
+                                        content: Text("Are you sure you want to delete this Item?"),
+                                        actions: <Widget>[
+                                          TextButton( // Changed FlatButton to TextButton
+                                            child: Text("Cancel"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton( // Changed FlatButton to TextButton
+                                            child: Text("Delete"),
+                                            onPressed: () {
+                                              db.deleteProduct(items[index].noteId!).whenComplete(() {
+                                                _refresh();
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
 
-        ],
+                            ],
+                          ),
+                          onTap: () {
+                            // Add your existing onTap functionality here if needed
+                          },
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
+            ),
+          ],
+        ),
       ),
-      onTap: () {
-        // Add your existing onTap functionality here if needed
-      },
-    ),
-    );
-    },
-    );
-    }
-    },
-    ),
-    ],
-    ),
-    ),
     );
   }
 }
