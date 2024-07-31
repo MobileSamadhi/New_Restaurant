@@ -65,7 +65,7 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
             color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
         ),
-        backgroundColor: Color(0xFF0072BC),
+        backgroundColor: Color(0xFF470404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back,color: Colors.white,),
           onPressed: () {
@@ -105,7 +105,7 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
                       _deleteCategory(category.categoryId!);
                     },
                     child: Card(
-                      color: Color(0xFFD4E6F1),
+                      color: Color(0xFFDAB3AC),
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -117,7 +117,7 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
                           category.categoryName,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFF0072BC)),
+                        trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFF470404)),
                         onTap: () {
                           _showEditDialog(category);
                         },
@@ -134,7 +134,7 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
         onPressed: () {
           _showAddDialog();
         },
-        backgroundColor: Color(0xFF2874A6),
+        backgroundColor: Color(0xFF470404),
         child: const Icon(Icons.add, color: Colors.white,),
       ),
     );

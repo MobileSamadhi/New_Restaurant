@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC).withOpacity(.2), // Blue color with opacity
+                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
                     ),
                     child: TextFormField(
                       controller: username,
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.person, color: Color(0xFF0072BC)), // Blue color
+                        icon: Icon(Icons.person, color: Color(0xFF470404)), // Blue color
                         border: InputBorder.none,
                         hintText: "Username",
                         hintStyle: TextStyle(color: Color(0xFF414042)), // Dark Gray color
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC).withOpacity(.2), // Blue color with opacity
+                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
                     ),
                     child: TextFormField(
                       controller: password,
@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       obscureText: !isVisible,
                       decoration: InputDecoration(
-                        icon: const Icon(Icons.lock, color: Color(0xFF0072BC)), // Blue color
+                        icon: const Icon(Icons.lock, color: Color(0xFF470404)), // Blue color
                         border: InputBorder.none,
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Color(0xFF414042)), // Dark Gray color
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: MediaQuery.of(context).size.width * .9,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC), // Blue color
+                      color: Color(0xFF470404), // Blue color
                     ),
                     child: TextButton(
                         onPressed: () {
@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: const Text(
                             "SIGN UP",
-                            style: TextStyle(color: Color(0xFF0072BC)), // Blue color
+                            style: TextStyle(color: Color(0xFF470404)), // Blue color
                           ))
                     ],
                   ),

@@ -158,7 +158,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
             );
           },
         ),
-        backgroundColor: Color(0xFF0072BC),
+        backgroundColor: Color(0xFF470404),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -317,7 +317,12 @@ class _PrintBillPageState extends State<PrintBillPage> {
                 Center(
                   child: ElevatedButton(
                     onPressed: _printBill,
-                    child: Text('Print Bill'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 100.0),),
+                    child: const Text('Print Bill',
+                      style: TextStyle(
+                        color: Colors.white, // Your color code here
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -27,7 +27,7 @@ class DashboardPage extends StatelessWidget {
             );
           },
         ),
-        backgroundColor: Color(0xFFad6c47), // Blue color
+        backgroundColor: Color(0xFF470404), // Blue color
         centerTitle: true,
         elevation: 5,
         actions: [
@@ -54,8 +54,8 @@ class DashboardPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       buildDashboardButton(
                         context,
-                        'Go to Product',
-                        Color(0xFFF0E1DA), // Blue color
+                        'Products',
+                        Color(0xFFad6c47), // Blue color
                         Icons.shopping_bag,
                         Products(),
                       ),
@@ -63,7 +63,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Company Details',
-                        Color(0xFFDAB3AC), // Purple color
+                        Color(0xFFad6c47), // Purple color
                         Icons.business,
                         CompanyDetailsPage(),
                       ),
@@ -71,7 +71,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Cart',
-                        Color(0xFFF1C40F), // Orange color
+                        Color(0xFFad6c47), // Orange color
                         Icons.shopping_cart,
                         BillingPage(),
                       ),
@@ -79,7 +79,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Report',
-                        Color(0xFFE74C3C), // Red color
+                        Color(0xFFad6c47), // Red color
                         Icons.report,
                         SalesSummaryPage(),
                       ),

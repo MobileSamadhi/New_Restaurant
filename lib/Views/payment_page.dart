@@ -63,7 +63,7 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
         ),
 
-        backgroundColor: const Color(0xFF0072bc),
+        backgroundColor: const Color(0xFF470404),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
@@ -92,7 +92,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0072bc),
+                    color: Color(0xFFad6c47),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -106,7 +106,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Color(0xFFCD7F32),
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                     textStyle: const TextStyle(fontSize: 20),
                   ),
@@ -122,7 +122,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFFC19A6B),
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                     textStyle: const TextStyle(fontSize: 20),
                   ),
@@ -156,7 +156,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404)),
                       child: const Text('Print Bill'),
                     ),
                   ],
@@ -190,7 +190,7 @@ class _PaymentPageState extends State<PaymentPage> {
               },
               child: const Text(
                 'OK',
-                style: TextStyle(color: Colors.teal),
+                style: TextStyle(color: Color(0xFF470404)),
               ),
             ),
           ],
@@ -204,7 +204,7 @@ class _PaymentPageState extends State<PaymentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Cash Payment', style: TextStyle(color: Colors.green)),
+          title: const Text('Cash Payment', style: TextStyle(color: Color(0xFF470404))),
           content: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -230,13 +230,13 @@ class _PaymentPageState extends State<PaymentPage> {
                     },
                     decoration: const InputDecoration(
                       labelText: 'Amount Paid',
-                      labelStyle: TextStyle(color: Colors.teal),
+                      labelStyle: TextStyle(color: Color(0xFF470404)),
                       border: OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                     keyboardType: TextInputType.number,
@@ -247,13 +247,13 @@ class _PaymentPageState extends State<PaymentPage> {
                     enabled: false,
                     decoration: const InputDecoration(
                       labelText: 'Change',
-                      labelStyle: TextStyle(color: Colors.teal),
+                      labelStyle: TextStyle(color: Color(0xFF470404)),
                       border: OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                     keyboardType: TextInputType.number,
@@ -283,7 +283,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     _paymentSuccess = true; // Update payment success status
                   });
                   Navigator.of(context).pop(true);
-                  _showMessage(context, 'Payment Result', 'Payment Successful', Colors.green);
+                  _showMessage(context, 'Payment Result', 'Payment Successful', Color(0xFF470404));
                   // Navigate to PrintBillPage
                   Navigator.pushReplacement(
                     context,
@@ -304,9 +304,12 @@ class _PaymentPageState extends State<PaymentPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Color(0xFF470404),
               ),
-              child: const Text('Submit'),
+              child: const Text('Submit',
+        style: TextStyle(
+        color: Colors.white),
+              ),
             ),
           ],
         );
@@ -319,7 +322,7 @@ class _PaymentPageState extends State<PaymentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Card Payment', style: TextStyle(color: Colors.blue)),
+          title: const Text('Card Payment', style: TextStyle(color: Color(0xFF470404))),
           content: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -340,13 +343,13 @@ class _PaymentPageState extends State<PaymentPage> {
                     },
                     decoration: const InputDecoration(
                       labelText: 'Card Type',
-                      labelStyle: TextStyle(color: Colors.teal),
+                      labelStyle: TextStyle(color: Color(0xFF470404)),
                       border: OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                     items: <String>[
@@ -392,7 +395,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     _paymentSuccess = true; // Update payment success status
                   });
                   Navigator.of(context).pop();
-                  _showMessage(context, 'Payment Result', 'Payment Successful', Colors.green);
+                  _showMessage(context, 'Payment Result', 'Payment Successful', Color(0xFF470404));
                   // Navigate to PrintBillPage
                   Navigator.pushReplacement(
                     context,
@@ -413,7 +416,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Color(0xFF470404),
               ),
               child: const Text('Submit'),
             ),

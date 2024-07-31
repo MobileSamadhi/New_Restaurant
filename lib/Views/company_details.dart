@@ -90,7 +90,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
             color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
           ),
-        backgroundColor: Color(0xFF0072bc),
+        backgroundColor: Color(0xFF470404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white,),
           onPressed: () {
@@ -161,7 +161,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
                   child: ElevatedButton(
                     onPressed: _saveCompanyDetails,
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: Color(0xFF0072BC),
+                      foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47),
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       textStyle: TextStyle(fontSize: 18),
                       shape: RoundedRectangleBorder(
@@ -196,7 +196,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0072BC),
+            color: Color(0xFFad6c47),
           ),
         ),
         SizedBox(height: 5),

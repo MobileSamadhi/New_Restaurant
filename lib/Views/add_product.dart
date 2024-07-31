@@ -58,7 +58,7 @@ class _AddProductState extends State<AddProduct> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0072bc),
+        backgroundColor: const Color(0xFF470404),
         title: Text(
           "Add Products",
           style: GoogleFonts.poppins(
@@ -98,10 +98,10 @@ class _AddProductState extends State<AddProduct> {
                     },
                     decoration: InputDecoration(
                       labelText: "Product Name",
-                      labelStyle: const TextStyle(color: Color(0xFF0072BC)),
+                      labelStyle: const TextStyle(color: Color(0xFF470404)),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF0072BC)),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                   ),
@@ -124,10 +124,10 @@ class _AddProductState extends State<AddProduct> {
                     ],
                     decoration: InputDecoration(
                       labelText: "Quantity",
-                      labelStyle: const TextStyle(color: Color(0xFF0072BC)),
+                      labelStyle: const TextStyle(color: Color(0xFF470404)),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF0072BC)),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                   ),
@@ -149,12 +149,12 @@ class _AddProductState extends State<AddProduct> {
                     ],
                     decoration: InputDecoration(
                       labelText: "Add one Item Price",
-                      labelStyle: const TextStyle(color: Color(0xFF0072BC)),
+                      labelStyle: const TextStyle(color: Color(0xFF470404)),
                       suffixText: '.00', // Suffix text to display on the right side
                       suffixStyle: TextStyle(color: Colors.grey[600]),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF0072BC)),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                   ),
@@ -176,10 +176,10 @@ class _AddProductState extends State<AddProduct> {
                     },
                     decoration: InputDecoration(
                       labelText: "Category",
-                      labelStyle: const TextStyle(color: Color(0xFF0072BC)),
+                      labelStyle: const TextStyle(color: Color(0xFF470404)),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF0072BC)),
+                        borderSide: BorderSide(color: Color(0xFF470404)),
                       ),
                     ),
                   ),
@@ -188,7 +188,7 @@ class _AddProductState extends State<AddProduct> {
                 ElevatedButton(
                   onPressed: _pickImage,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0072BC),
+                    backgroundColor: const Color(0xFFad6c47),
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text(
@@ -238,7 +238,7 @@ class _AddProductState extends State<AddProduct> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0072BC),
+                    backgroundColor: const Color(0xFFad6c47),
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text(

@@ -94,7 +94,7 @@ class _ProductsState extends State<Products> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF0072BC),
+        backgroundColor: Color(0xFF470404),
         title: Text(
           "Products",
           style: GoogleFonts.poppins(
@@ -146,7 +146,7 @@ class _ProductsState extends State<Products> {
           });
         },
         child: const Icon(Icons.add, color: Colors.white,),
-        backgroundColor: Color(0xFF2874A6),
+        backgroundColor: Color(0xFF470404),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -239,7 +239,7 @@ class _ProductsState extends State<Products> {
                       }
 
                       return Card(
-                        color: Color(0xFFAED6F1),
+                        color: Color(0xFFDAB3AC),
                         elevation: 3,
                         margin: const EdgeInsets.all(8),
                         child: ListTile(
@@ -260,7 +260,7 @@ class _ProductsState extends State<Products> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Color(0xFF0072BC)),
+                                icon: const Icon(Icons.edit, color: Color(0xFFad6c47)),
                                 onPressed: () {
                                   setState(() {
                                     title.text = items[index].noteTitle;

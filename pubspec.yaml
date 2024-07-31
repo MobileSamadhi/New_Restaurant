@@ -90,6 +90,7 @@ flutter:
     - lib/assets/sign.jpg
     - lib/assets/add.jpg
     - lib/assets/logo.jpg
+    - lib/assets/logo1.jpg
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

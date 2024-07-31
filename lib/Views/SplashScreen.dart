@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color:  Color(0xFF0072BC), // Set your desired background color here
+        color:  Color(0xFFDAB3AC), // Set your desired background color here
         child: Center(
           child: GestureDetector(
             onTap: () {
@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Cloud Mobile Lite',
+                  'CINNAMON DINE',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,
@@ -72,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ],
                       ),
                       child: Image.asset(
-                        'lib/assets/image.png',
+                        'lib/assets/logo1.jpg',
                         fit: BoxFit.cover, // Ensure the image covers the container
                       ),
                     ),

@@ -43,7 +43,7 @@ class _SignUpState extends State<SignUp> {
                         style: GoogleFonts.poppins(
                           fontSize: 29,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF414042), // Dark Gray color
+                          color: Color(0xFF470404), // Dark Gray color
                         ),
                       ),
                     ),
@@ -62,7 +62,7 @@ class _SignUpState extends State<SignUp> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC).withOpacity(.2), // Blue color with opacity
+                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
                     ),
                     child: TextFormField(
                       controller: username,
@@ -73,7 +73,7 @@ class _SignUpState extends State<SignUp> {
                         return null;
                       },
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.person, color: Color(0xFF0072BC)), // Blue color
+                        icon: Icon(Icons.person, color: Color(0xFF470404)), // Blue color
                         border: InputBorder.none,
                         hintText: "Username",
                         hintStyle: TextStyle(color: Color(0xFF414042)), // Dark Gray color
@@ -87,39 +87,44 @@ class _SignUpState extends State<SignUp> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC).withOpacity(.2), // Blue color with opacity
+                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
                     ),
                     child: TextFormField(
                       controller: password,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "password is required";
+                          return "Password is required";
+                        }
+                        if (value.length < 8) {
+                          return "Password must be at least 8 characters";
+                        }
+                        // Check if password contains at least one symbol
+                        if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+                          return "Password must include at least one symbol";
                         }
                         return null;
                       },
                       obscureText: !isVisible,
                       decoration: InputDecoration(
-                        icon: const Icon(Icons.lock, color: Color(0xFF0072BC)), // Blue color
+                        icon: const Icon(Icons.lock, color: Color(0xFF470404)), // Blue color
                         border: InputBorder.none,
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Color(0xFF414042)), // Dark Gray color
                         suffixIcon: IconButton(
                           onPressed: () {
-                            // In here we will create a click to show and hide the password a toggle button
                             setState(() {
-                              // toggle button
                               isVisible = !isVisible;
                             });
                           },
-                          icon: Icon(isVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                              color: Color(0xFF414042)), // Dark Gray color
+                          icon: Icon(
+                            isVisible ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF414042), // Dark Gray color
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
+                  ),
                   // Confirm Password field
                   // Now we check whether password matches or not
                   Container(
@@ -127,7 +132,7 @@ class _SignUpState extends State<SignUp> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC).withOpacity(.2), // Blue color with opacity
+                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
                     ),
                     child: TextFormField(
                       controller: confirmPassword,
@@ -141,7 +146,7 @@ class _SignUpState extends State<SignUp> {
                       },
                       obscureText: !isVisible,
                       decoration: InputDecoration(
-                        icon: const Icon(Icons.lock, color: Color(0xFF0072BC)), // Blue color
+                        icon: const Icon(Icons.lock, color: Color(0xFF470404)), // Blue color
                         border: InputBorder.none,
                         hintText: "Confirm Password",
                         hintStyle: const TextStyle(color: Color(0xFF414042)), // Dark Gray color
@@ -169,7 +174,7 @@ class _SignUpState extends State<SignUp> {
                     width: MediaQuery.of(context).size.width * .9,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF0072BC), // Blue color
+                      color: Color(0xFF470404), // Blue color
                     ),
                     child: TextButton(
                         onPressed: () {
@@ -214,7 +219,7 @@ class _SignUpState extends State<SignUp> {
                           },
                           child: const Text(
                             "Login",
-                            style: TextStyle(color: Color(0xFF0072BC)), // Blue color
+                            style: TextStyle(color: Color(0xFF470404)), // Blue color
                           ))
                     ],
                   )

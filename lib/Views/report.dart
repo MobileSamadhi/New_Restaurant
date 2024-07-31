@@ -183,7 +183,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
             color: Color(0xFFE0FFFF), // Adjust the text color as needed
           ),
          ),
-        backgroundColor: Color(0xFF0072BC),
+        backgroundColor: Color(0xFF470404),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white,),
           onPressed: () {
@@ -211,7 +211,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
                 suffixIcon: IconButton(
                   onPressed: () => _selectStartDate(context),
                   icon: Icon(Icons.calendar_today),
-                  color: Colors.blue, // Change calendar icon color
+                  color: Color(0xFFad6c47), // Change calendar icon color
                 ),
               ),
             ),
@@ -228,7 +228,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
                 suffixIcon: IconButton(
                   onPressed: () => _selectEndDate(context),
                   icon: Icon(Icons.calendar_today),
-                  color: Colors.blue, // Change calendar icon color
+                  color: Color(0xFFad6c47), // Change calendar icon color
                 ),
               ),
             ),
@@ -239,7 +239,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               },
               child: Text('Filter'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blue, // Change text color
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
               ),
             ),
             SizedBox(height: 20),
@@ -247,7 +247,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               onPressed: _generatePDF,
               child: Text('Download PDF Report'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blue, // Change text color
+                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
               ),
             ),
             SizedBox(height: 20),

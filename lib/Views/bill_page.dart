@@ -248,7 +248,7 @@ class _BillingPageState extends State<BillingPage> {
             );
           },
         ),
-        backgroundColor: Color(0xFF0072BC),
+        backgroundColor: Color(0xFF470404),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -288,7 +288,7 @@ class _BillingPageState extends State<BillingPage> {
         children: [
           const Text(
             'Bill Information',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFad6c47)),
           ),
           const SizedBox(height: 10),
           buildTextField('Bill Number', initialValue: billNumber, readOnly: true),
@@ -304,13 +304,13 @@ class _BillingPageState extends State<BillingPage> {
       readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Color(0xFF0072BC)), // Label color
+        labelStyle: TextStyle(color: Color(0xFF470404)), // Label color
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF0072BC)), // Border color
+          borderSide: BorderSide(color: Color(0xFF470404)), // Border color
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF0072BC)), // Focused border color
+          borderSide: BorderSide(color: Color(0xFF470404)), // Focused border color
         ),
       ),
       controller: TextEditingController(text: initialValue),
@@ -338,7 +338,7 @@ class _BillingPageState extends State<BillingPage> {
         children: [
           const Text(
             'Products',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFad6c47)),
           ),
           const SizedBox(height: 10),
           buildProductSearchBar(),
@@ -428,7 +428,7 @@ class _BillingPageState extends State<BillingPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: BoxDecoration(
-          color: Colors.blue[50], // Light blue background
+          color: Color(0xFFDAB3AC), // Light blue background
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -447,7 +447,7 @@ class _BillingPageState extends State<BillingPage> {
               flex: 3,
               child: Text(
                 name,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF0072BC)),
+                style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
               ),
             ),
             // Add space between the name and price
@@ -458,7 +458,7 @@ class _BillingPageState extends State<BillingPage> {
               child: Text(
                 '$price',
                 textAlign: TextAlign.right,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF0072BC)),
+                style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
               ),
             ),
           ],
@@ -508,7 +508,7 @@ class _BillingPageState extends State<BillingPage> {
         children: [
           const Text(
             'Billing Summary',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0072BC)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFad6c47)),
           ),
           const SizedBox(height: 10),
           ...cart.map((item) {
@@ -527,10 +527,10 @@ class _BillingPageState extends State<BillingPage> {
           TextField(
             decoration: InputDecoration(
               labelText: 'Discount',
-              labelStyle: TextStyle(color: Color(0xFF0072BC)),
+              labelStyle: TextStyle(color: Color(0xFF470404)),
               border: OutlineInputBorder(),
               focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF0072BC)),
+                borderSide: BorderSide(color: Color(0xFF470404)),
               ),
             ),
             keyboardType: TextInputType.number,
@@ -543,8 +543,12 @@ class _BillingPageState extends State<BillingPage> {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () => handlePayBill(netAmount),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text('Print Bill'),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 150.0),),
+            child: const Text('Pay Bill',
+              style: TextStyle(
+                color: Colors.white, // Your color code here
+              ),
+            ),
           ),
         ],
       ),
@@ -556,8 +560,8 @@ class _BillingPageState extends State<BillingPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16, color: Color(0xFF0072BC))),
-          Text(value, style: const TextStyle(fontSize: 16, color: Color(0xFF0072BC))),
+          Text(label, style: const TextStyle(fontSize: 16, color: Color(0xFF470404))),
+          Text(value, style: const TextStyle(fontSize: 16, color: Color(0xFF470404))),
         ],
       ),
     );

@@ -75,5 +75,19 @@ class AddProductDb {
       whereArgs: [id],
     );
   }
+  Future<List<AddProductModel>> filterProductsByCategory(String category) async {
+    final db = await database;
+    if (category == "All") {
+      // Fetch all notes if the category is "All"
+      return getProducts();
+    } else {
+      // Fetch notes filtered by category
+      List<Map<String, dynamic>> maps = await db.query('notes', where: 'noteCategory = ?', whereArgs: [category]);
+
+      return List.generate(maps.length, (i) {
+        return AddProductModel.fromMap(maps[i]);
+      });
+     }
+  }
 }
 
