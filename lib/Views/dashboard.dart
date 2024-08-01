@@ -34,7 +34,7 @@ class DashboardPage extends StatelessWidget {
         ],
       ),
       body: Column(
-        children: [
+        children:[
           Expanded(
             child: SingleChildScrollView(
               child: Center(
@@ -44,6 +44,14 @@ class DashboardPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      buildDashboardButton(
+                        context,
+                        'Company Details',
+                        Color(0xFFad6c47), // Purple color
+                        Icons.business,
+                        CompanyDetailsPage(),
+                      ),
+                      const SizedBox(height: 20),
                       buildDashboardButton(
                         context,
                         'Product Category',
@@ -58,14 +66,6 @@ class DashboardPage extends StatelessWidget {
                         Color(0xFFad6c47), // Blue color
                         Icons.shopping_bag,
                         Products(),
-                      ),
-                      const SizedBox(height: 20),
-                      buildDashboardButton(
-                        context,
-                        'Company Details',
-                        Color(0xFFad6c47), // Purple color
-                        Icons.business,
-                        CompanyDetailsPage(),
                       ),
                       const SizedBox(height: 20),
                       buildDashboardButton(

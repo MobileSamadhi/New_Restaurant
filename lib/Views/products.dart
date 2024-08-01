@@ -168,7 +168,7 @@ class _ProductsState extends State<Products> {
                     products = value.isNotEmpty ? searchProduct() : filterProductsByCategory();
                   });
                 },
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   icon: Icon(Icons.search, color: Color(0xFF414042)),

@@ -579,11 +579,11 @@ class _BillingPageState extends State<BillingPage> {
           ElevatedButton(
             onPressed: () => handlePayBill(netAmount),
             style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 120.0),),
-               child: const Text('Pay Bill',
-               style: TextStyle(
-               color: Colors.white,
-    ),
-          ),
+            child: const Text('Pay Bill',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ), ],
       ),
     );
