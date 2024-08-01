@@ -109,17 +109,9 @@ class _BillingPageState extends State<BillingPage> {
                       IconButton(
                         icon: Icon(Icons.add),
                         onPressed: () {
-                          if (quantity < product.availableStock) {
-                            setState(() {
-                              quantity++;
-                            });
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Cannot add more than available stock.'),
-                              ),
-                            );
-                          }
+                          setState(() {
+                            quantity++;
+                          });
                         },
                       ),
                     ],
@@ -135,36 +127,21 @@ class _BillingPageState extends State<BillingPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (quantity > product.availableStock) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Cannot add more than available stock.'),
-                        ),
-                      );
-                    } else {
-                      setState(() {
-                        cart.add({
-                          'product': product,
-                          'quantity': quantity,
-                        });
-
-                        // Update the saleStock and availableStock
-                        product.saleStock += quantity;
-                        product.availableStock = product.noteStock - product.saleStock;
-
-                        // Update the product in the database
-                        AddProductDb().updateProduct(product);
-                      });
-                      Navigator.of(context).pop();
-                      updateSummary(); // Update the summary whenever a product is added
-                      CartDatabaseHelper().insertProduct({
-                        'productId': product.noteId,
-                        'billId': billId, // Add the billId here
-                        'productName': product.noteTitle,
+                    setState(() {
+                      cart.add({
+                        'product': product,
                         'quantity': quantity,
-                        'price': product.notePrice,
-                      }); // Insert the product into the SQLite database
-                    }
+                      });
+                    });
+                    Navigator.of(context).pop();
+                    updateSummary(); // Update the summary whenever a product is added
+                    CartDatabaseHelper().insertProduct({
+                      'productId': product.noteId,
+                      'billId': billId, // Add the billId here
+                      'productName': product.noteTitle,
+                      'quantity': quantity,
+                      'price': product.notePrice,
+                    }); // Insert the product into the SQLite database
                   },
                   child: Text('Add to Cart'),
                 ),
@@ -175,6 +152,7 @@ class _BillingPageState extends State<BillingPage> {
       },
     );
   }
+
 
   void updateSummary() {
     setState(() {

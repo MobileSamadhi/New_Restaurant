@@ -20,7 +20,6 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   final title = TextEditingController();
-  final content = TextEditingController();
   final price = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -109,32 +108,6 @@ class _AddProductState extends State<AddProduct> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: TextFormField(
-                    controller: content,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Quantity is required";
-                      }
-                      return null;
-                    },
-
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(1000), // Limits input to 10 characters
-                    ],
-                    decoration: InputDecoration(
-                      labelText: "Quantity",
-                      labelStyle: const TextStyle(color: Color(0xFF470404)),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: TextFormField(
                     controller: price,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -148,7 +121,7 @@ class _AddProductState extends State<AddProduct> {
                       LengthLimitingTextInputFormatter(1000), // Limits input to 10 characters
                     ],
                     decoration: InputDecoration(
-                      labelText: "Add one Item Price",
+                      labelText: "Unit price",
                       labelStyle: const TextStyle(color: Color(0xFF470404)),
                       suffixText: '.00', // Suffix text to display on the right side
                       suffixStyle: TextStyle(color: Colors.grey[600]),
@@ -206,20 +179,20 @@ class _AddProductState extends State<AddProduct> {
                     if (formKey.currentState!.validate()) {
                       final product = AddProductModel(
                         noteTitle: title.text,
-                        noteContent: content.text,
+                        noteContent: '', // No longer using quantity
                         notePrice: double.parse(price.text),
                         noteCategory: selectedCategory,
                         noteImage: _image?.path ?? '', // Save image path or an empty string
-                        availableStock: int.parse(content.text), // Set the available stock
+                        availableStock: 0, // Default value or adjust as needed
                         date: DateTime.now().toIso8601String(),
-                        noteStock: int.parse(content.text),
+                        noteStock: 0, // Default value or adjust as needed
                         saleStock: 0, // Set saleStock to 0 by default
                         time: TimeOfDay.now().format(context),
                       );
 
                       final note = NoteModel(
                         noteTitle: title.text,
-                        noteContent: content.text,
+                        noteContent: '', // No longer using quantity
                         notePrice: double.parse(price.text),
                         createdAt: DateTime.now().toIso8601String(),
                         noteCategory: selectedCategory,
