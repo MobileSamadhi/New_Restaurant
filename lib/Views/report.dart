@@ -227,11 +227,12 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     bluetooth.printCustom("Product Name     Qty     Price     Total", 1, 1);
     bluetooth.printCustom("------------------------------------------", 1, 1);
 
-    for (var item in cartItems) {
+    final mergedItems = mergeCartItems(cartItems);
+    for (var item in mergedItems) {
       String name = item['productName'];
       int quantity = item['quantity'];
       double price = item['price'];
-      double total = price * quantity;
+      double total = item['totalPrice'];
 
       String itemLine = formatLine(name, quantity.toString(), price.toStringAsFixed(2), total.toStringAsFixed(2));
       bluetooth.printCustom(itemLine, 1, 1);
@@ -239,8 +240,8 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
 
     bluetooth.printCustom("------------------------------------------", 1, 1);
     bluetooth.printNewLine();
-    bluetooth.printCustom("Total Quantity: ${cartItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}", 1, 1);
-    bluetooth.printCustom("Total Sales: ${cartItems.fold<double>(0, (sum, item) => sum + item['price'] * item['quantity']).toStringAsFixed(2)}", 1, 1);
+    bluetooth.printCustom("Total Quantity: ${mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}", 1, 1);
+    bluetooth.printCustom("Total Sales: ${mergedItems.fold<double>(0, (sum, item) => sum + item['totalPrice']).toStringAsFixed(2)}", 1, 1);
     bluetooth.printNewLine();
 
     bluetooth.printCustom(addCenterMargin("Thank You, Come Again!", totalWidth: 42), 1, 1);
@@ -266,6 +267,29 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     return '$paddedName$paddedQty$paddedPrice$paddedTotal';
   }
 
+  List<Map<String, dynamic>> mergeCartItems(List<Map<String, dynamic>> items) {
+    final mergedItems = <String, Map<String, dynamic>>{};
+
+    for (var item in items) {
+      final productName = item['productName'];
+      if (mergedItems.containsKey(productName)) {
+        mergedItems[productName]!['quantity'] += item['quantity'];
+        mergedItems[productName]!['totalPrice'] += item['quantity'] * item['price'];
+      } else {
+        mergedItems[productName] = {
+          'productName': productName,
+          'quantity': item['quantity'],
+          'price': item['price'],
+          'totalPrice': item['quantity'] * item['price'],
+          'date': item['date'],
+          'time': item['time'],
+        };
+      }
+    }
+
+    return mergedItems.values.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -288,127 +312,101 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Start Date (YYYY-MM-DD)',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 5),
-            TextField(
-              controller: startDateController,
-              readOnly: true,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  onPressed: () => _selectStartDate(context),
-                  icon: Icon(Icons.calendar_today),
-                  color: Color(0xFFad6c47), // Change calendar icon color
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Start Date (YYYY-MM-DD)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'End Date (YYYY-MM-DD)',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 5),
-            TextField(
-              controller: endDateController,
-              readOnly: true,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  onPressed: () => _selectEndDate(context),
-                  icon: Icon(Icons.calendar_today),
-                  color: Color(0xFFad6c47), // Change calendar icon color
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                _fetchCartItems(startDateController.text, endDateController.text);
-              },
-              child: Text('Filter'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _generatePDF,
-              child: Text('Download PDF Report'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _printSummary,
-              child: Text('Print Report'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
-              ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      'Sales Summary Details',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      textAlign: TextAlign.center,
+                SizedBox(height: 5),
+                TextField(
+                  controller: startDateController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      onPressed: () => _selectStartDate(context),
+                      icon: Icon(Icons.calendar_today),
+                      color: Color(0xFFad6c47), // Change calendar icon color
                     ),
                   ),
-                  // Add the summary table
-                  SalesSummaryTable(cartItems),
-                  Expanded(
-                    child: cartItems.isEmpty
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'End Date (YYYY-MM-DD)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                TextField(
+                  controller: endDateController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      onPressed: () => _selectEndDate(context),
+                      icon: Icon(Icons.calendar_today),
+                      color: Color(0xFFad6c47), // Change calendar icon color
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    _fetchCartItems(startDateController.text, endDateController.text);
+                  },
+                  child: Text('Filter'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _generatePDF,
+                  child: Text('Download PDF Report'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _printSummary,
+                  child: Text('Print Report'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Color(0xFFad6c47), // Change text color
+                  ),
+                ),
+                SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'Sales Summary Details',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    // Add the summary table
+                    SalesSummaryTable(cartItems),
+                    cartItems.isEmpty
                         ? Center(
                       child: Text(
                         'No items in cart',
                         style: TextStyle(color: Colors.red), // Change text color
                       ),
                     )
-                        : ListView.builder(
-                      itemCount: cartItems.length,
-                      itemBuilder: (context, index) {
-                        final item = cartItems[index];
-                        final productName = item['productName'] != null ? item['productName'] : 'Unknown Product';
-                        final quantity = item['quantity'] ?? 0;
-                        final price = item['price'] ?? 0.0;
-                        final totalPrice = price * quantity;
-                        final date = item['date'];
-                        final time = item['time'];
-
-                        return ListTile(
-                          title: Text(
-                            productName,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Quantity: $quantity'),
-                              Text('Price: ${price.toStringAsFixed(2)}'),
-                              Text('Total Price: ${totalPrice.toStringAsFixed(2)}'),
-                              Text('Date: $date'),
-                              Text('Time: $time'),
-                            ],
-                          ),
-                        );
-                      },
+                        : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -421,76 +419,61 @@ class SalesSummaryTable extends StatelessWidget {
 
   SalesSummaryTable(this.cartItems);
 
-  @override
-  Widget build(BuildContext context) {
-    int totalQuantity = 0;
-    double totalSales = 0.0;
+  List<Map<String, dynamic>> mergeCartItems(List<Map<String, dynamic>> items) {
+    final mergedItems = <String, Map<String, dynamic>>{};
 
-    for (var item in cartItems) {
-      totalQuantity += (item['quantity'] ?? 0) as int;
-      totalSales += (item['quantity'] ?? 0) * (item['price'] ?? 0.0);
+    for (var item in items) {
+      final productName = item['productName'];
+      if (mergedItems.containsKey(productName)) {
+        mergedItems[productName]!['quantity'] += item['quantity'];
+        mergedItems[productName]!['totalPrice'] += item['quantity'] * item['price'];
+      } else {
+        mergedItems[productName] = {
+          'productName': productName,
+          'quantity': item['quantity'],
+          'price': item['price'],
+          'totalPrice': item['quantity'] * item['price'],
+          'date': item['date'],
+          'time': item['time'],
+        };
+      }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(5.0),
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 10.0),
-      child: Table(
-        columnWidths: {
-          0: FlexColumnWidth(3),
-          1: FlexColumnWidth(2),
-        },
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        children: [
-          TableRow(
-            children: [
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Total Quantity',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '$totalQuantity',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          TableRow(
-            children: [
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Total Sales',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '${totalSales.toStringAsFixed(2)}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return mergedItems.values.toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mergedItems = mergeCartItems(cartItems);
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text('Product Name')),
+          DataColumn(label: Text('Quantity')),
+          DataColumn(label: Text('Price')),
+          DataColumn(label: Text('Total Price')),
+          DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Time')),
         ],
+        rows: mergedItems.map((item) {
+          final productName = item['productName'] ?? 'Unknown Product';
+          final quantity = item['quantity'] ?? 0;
+          final price = item['price'] ?? 0.0;
+          final totalPrice = item['totalPrice'] ?? 0.0;
+          final date = item['date'] ?? '';
+          final time = item['time'] ?? '';
+
+          return DataRow(cells: [
+            DataCell(Text(productName)),
+            DataCell(Text(quantity.toString())),
+            DataCell(Text(price.toStringAsFixed(2))),
+            DataCell(Text(totalPrice.toStringAsFixed(2))),
+            DataCell(Text(date)),
+            DataCell(Text(time)),
+          ]);
+        }).toList(),
       ),
     );
   }
