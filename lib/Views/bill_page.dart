@@ -556,6 +556,7 @@ class _BillingPageState extends State<BillingPage> {
                 updateSummary(); // Update the summary whenever discount is updated
               });
             },
+
           ),
           const SizedBox(height: 10),
           ElevatedButton(

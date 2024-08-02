@@ -6,6 +6,7 @@ import '../JsonModels/add_product_model.dart';
 import '../JsonModels/company_model.dart';
 import '../JsonModels/product_model.dart';
 import '../SQLite/db_helper.dart';
+import '../SQLite/print_bill_db.dart';
 import 'bill_page.dart'; // Ensure correct import if using AddProductModel
 
 class PrintBillPage extends StatefulWidget {
@@ -81,6 +82,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
     if (company == null) return;
 
+    // Print bill logic
     bluetooth.printCustom(company!.companyName, 3, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(company!.address, 1, 1);
@@ -95,6 +97,11 @@ class _PrintBillPageState extends State<PrintBillPage> {
     bluetooth.printCustom(addRightMargin("Name          Qty     Price     Total", totalWidth: 42), 1, 1);
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
+    // Save bill data to database
+    final dbHelper = PrintBillDBHelper();
+    final date = DateFormat('yyyy-MM-dd').format(widget.dateTime);
+    final time = DateFormat('HH:mm').format(widget.dateTime);
+
     for (var item in widget.cart) {
       var product = item['product'];
       String name = '';
@@ -106,10 +113,24 @@ class _PrintBillPageState extends State<PrintBillPage> {
         name = product.noteTitle;
         price = product.notePrice!;
       }
-      var quantity = item['quantity'].toString();
-      var total = (price * item['quantity']).toStringAsFixed(2);
+      var quantity = item['quantity'];
+      var grossAmount = price * quantity;
+      var netAmount = grossAmount - widget.discount;
 
-      String itemLine = formatLine(name, quantity, price.toStringAsFixed(2), total);
+      await dbHelper.insertBill({
+        'productId': product.noteId,
+        'billId': int.tryParse(widget.billNumber) ?? 0, // Ensure billId is integer
+        'productName': name,
+        'quantity': quantity,
+        'price': price,
+        'grossAmount': widget.grossAmount,
+        'discount': widget.discount,
+        'netAmount': widget.netAmount,
+        'date': date,
+        'time': time,
+      });
+
+      String itemLine = formatLine(name, quantity.toString(), price.toStringAsFixed(2), netAmount.toStringAsFixed(2));
       bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
     }
 
