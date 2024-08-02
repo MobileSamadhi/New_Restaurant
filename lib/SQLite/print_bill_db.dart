@@ -46,11 +46,6 @@ class PrintBillDBHelper {
     await db.insert('bills', bill, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Map<String, dynamic>>> getAllBills() async {
-    final db = await database;
-    return await db.query('bills');
-  }
-
   Future<List<Map<String, dynamic>>> getBillsById(int billId) async {
     final db = await database;
     return await db.query(
@@ -60,11 +55,8 @@ class PrintBillDBHelper {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getCartItems({required String startDate, required String endDate}) async {
-    Database db = await database;
-    return await db.rawQuery('''
-    SELECT * FROM cart 
-    WHERE date BETWEEN ? AND ?
-  ''', [startDate, endDate]);
+  Future<List<Map<String, dynamic>>> getAllBills() async {
+    final db = await database;
+    return await db.query('bills');
   }
 }

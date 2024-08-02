@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:synnex_mobile/Views/dashboard.dart';
-import '../SQLite/cart_db.dart';
+import '../SQLite/print_bill_db.dart';
 
 class BillAndCartViewPage extends StatefulWidget {
   @override
@@ -10,7 +10,7 @@ class BillAndCartViewPage extends StatefulWidget {
 }
 
 class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
-  CartDatabaseHelper dbHelper = CartDatabaseHelper();
+  PrintBillDBHelper dbHelper = PrintBillDBHelper();
   List<int> billIds = [];
   List<Map<String, dynamic>> billDetails = [];
   int? selectedBillId;
@@ -22,7 +22,7 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
   }
 
   Future<void> fetchBillIds() async {
-    final products = await dbHelper.getAllProducts();
+    final products = await dbHelper.getAllBills();
     final uniqueBillIds = products.map((product) => product['billId']).toSet().toList();
     setState(() {
       billIds = uniqueBillIds.cast<int>();
@@ -30,13 +30,9 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
   }
 
   Future<void> fetchBillDetails(int billId) async {
-    final products = await dbHelper.getCartItems(
-      startDate: '2000-01-01', // Arbitrary start date
-      endDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    );
-    final filteredProducts = products.where((product) => product['billId'] == billId).toList();
+    final products = await dbHelper.getBillsById(billId);
     setState(() {
-      billDetails = filteredProducts;
+      billDetails = products;
       selectedBillId = billId;
     });
   }
@@ -120,7 +116,20 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
                             ],
                           ),
                           SizedBox(height: 5),
-                          Text('Total: ${(product['quantity'] * product['price']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Gross Amount: ${(product['grossAmount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Text('Discount: ${(product['discount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Text('Net Amount: ${(product['netAmount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black)),
                         ],
                       ),
                     ),
