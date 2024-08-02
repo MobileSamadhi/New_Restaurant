@@ -47,10 +47,10 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
       appBar: AppBar(
         title: Text('Bill and Cart View',
           style: GoogleFonts.poppins(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFFE0FFFF),
-        ),
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFE0FFFF),
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
