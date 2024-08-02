@@ -2,17 +2,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:synnex_mobile/Views/payment_page.dart';
-import 'package:synnex_mobile/Views/print_bill.dart';
-import 'package:synnex_mobile/Views/report.dart';
-import '../JsonModels/add_product_model.dart';
-import '../SQLite/cart_db.dart';
-import '../SQLite/sqlite.dart'; // Import your SQLite database helper
-import 'dashboard.dart';
-import '../JsonModels/category_model.dart';
+import '../SQLite/cart_db.dart'; // Ensure you have this import
 import '../SQLite/add_product_db.dart'; // AddProductDb import
+import '../JsonModels/add_product_model.dart';
+import '../JsonModels/category_model.dart';
+import '../SQLite/sqlite.dart';
+import 'payment_page.dart';
+import 'print_bill.dart';
+import 'dashboard.dart';
+import 'report.dart';
 
 class BillingPage extends StatefulWidget {
+
   @override
   _BillingPageState createState() => _BillingPageState();
 }
@@ -21,10 +22,10 @@ class _BillingPageState extends State<BillingPage> {
   late Future<void> _initializationFuture;
   late String billNumber;
   late int billId;
-  late Future<List<AddProductModel>> products; // Use AddProductModel
-  List<AddProductModel> filteredProducts = []; // Use AddProductModel
-  List<Map<String, dynamic>> cart = []; // List to hold cart items with quantities
-  double discount = 0.0; // Variable to hold the discount value
+  late Future<List<AddProductModel>> products;
+  List<AddProductModel> filteredProducts = [];
+  List<Map<String, dynamic>> cart = [];
+  double discount = 0.0 ;
   TextEditingController productSearchController = TextEditingController();
   String? selectedCategory;
 
@@ -32,10 +33,10 @@ class _BillingPageState extends State<BillingPage> {
   void initState() {
     super.initState();
     _initializationFuture = _initializeBillNumber();
-    products = AddProductDb().getProducts(); // Fetch the products from SQLite database
+    products = AddProductDb().getProducts();
     products.then((productList) {
       setState(() {
-        filteredProducts = productList; // Initialize filteredProducts with all products
+        filteredProducts = productList;
       });
     });
     productSearchController.addListener(_filterProducts);
@@ -135,12 +136,20 @@ class _BillingPageState extends State<BillingPage> {
                     });
                     Navigator.of(context).pop();
                     updateSummary(); // Update the summary whenever a product is added
+
+                    double grossAmount = product.notePrice * quantity;
+                    double netAmount = grossAmount - discount;
+
+
                     CartDatabaseHelper().insertProduct({
                       'productId': product.noteId,
-                      'billId': billId, // Add the billId here
+                      'billId': billId,
                       'productName': product.noteTitle,
                       'quantity': quantity,
                       'price': product.notePrice,
+                      'grossAmount': grossAmount,
+                      'discount': discount,
+                      'netAmount': netAmount,
                     }); // Insert the product into the SQLite database
                   },
                   child: Text('Add to Cart'),
@@ -152,7 +161,6 @@ class _BillingPageState extends State<BillingPage> {
       },
     );
   }
-
 
   void updateSummary() {
     setState(() {
@@ -166,11 +174,11 @@ class _BillingPageState extends State<BillingPage> {
       MaterialPageRoute(
         builder: (context) => PaymentPage(
           amount: netAmount,
-          billNumber: billNumber, // Pass billNumber
-          cart: cart, // Pass cart
-          discount: discount, // Pass discount
-          grossAmount: calculateGrossAmount(cart), // Pass grossAmount
-          user: 'Admin', // Pass user (you can change this value accordingly)
+          billNumber: billNumber,
+          cart: cart,
+          discount: discount,
+          grossAmount: calculateGrossAmount(cart),
+          user: 'Admin',
         ),
       ),
     ).then((value) {
@@ -215,9 +223,9 @@ class _BillingPageState extends State<BillingPage> {
               title: Text(
                 'Bill Page',
                 style: GoogleFonts.poppins(
-                  fontSize: 22, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
-                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE0FFFF),
                 ),
               ),
               backgroundColor: Color(0xFF470404),
@@ -230,9 +238,9 @@ class _BillingPageState extends State<BillingPage> {
               title: Text(
                 'Bill Page',
                 style: GoogleFonts.poppins(
-                  fontSize: 22, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
-                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE0FFFF),
                 ),
               ),
               backgroundColor: Color(0xFF470404),
@@ -245,9 +253,9 @@ class _BillingPageState extends State<BillingPage> {
               title: Text(
                 'Bill Page',
                 style: GoogleFonts.poppins(
-                  fontSize: 22, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
-                  color: Color(0xFFE0FFFF), // Adjust the text color as needed
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE0FFFF),
                 ),
               ),
               leading: IconButton(
@@ -318,13 +326,13 @@ class _BillingPageState extends State<BillingPage> {
       readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Color(0xFF470404)), // Label color
+        labelStyle: TextStyle(color: Color(0xFF470404)),
         border: const OutlineInputBorder(),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF470404)), // Border color
+          borderSide: BorderSide(color: Color(0xFF470404)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF470404)), // Focused border color
+          borderSide: BorderSide(color: Color(0xFF470404)),
         ),
       ),
       controller: TextEditingController(text: initialValue),
@@ -334,7 +342,7 @@ class _BillingPageState extends State<BillingPage> {
 
   Widget buildProductsContainer() {
     return Container(
-      height: 500, // Set the height of the container
+      height: 500,
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -361,7 +369,7 @@ class _BillingPageState extends State<BillingPage> {
           const SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<AddProductModel>>(
-              future: products, // Use AddProductModel
+              future: products,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -382,7 +390,7 @@ class _BillingPageState extends State<BillingPage> {
                       children: filteredProducts.map((product) {
                         return GestureDetector(
                           onTap: () {
-                            addToCart(product); // Use AddProductModel
+                            addToCart(product);
                           },
                           child: buildProductRow(product.noteTitle, product.notePrice.toString(), getProductImagePath(product)),
                         );
@@ -442,21 +450,18 @@ class _BillingPageState extends State<BillingPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: BoxDecoration(
-          color: Color(0xFFDAB3AC), // Light blue background
+          color: Color(0xFFDAB3AC),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Display the product image
             CircleAvatar(
               backgroundImage: imagePath.startsWith('lib/assets/')
                   ? AssetImage(imagePath)
                   : FileImage(File(imagePath)) as ImageProvider,
             ),
-            // Add space between the image and name
             const SizedBox(width: 15),
-            // Display the product name
             Expanded(
               flex: 3,
               child: Text(
@@ -464,9 +469,7 @@ class _BillingPageState extends State<BillingPage> {
                 style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
               ),
             ),
-            // Add space between the name and price
             const SizedBox(width: 6),
-            // Display the product price
             Expanded(
               flex: 1,
               child: Text(
@@ -550,19 +553,25 @@ class _BillingPageState extends State<BillingPage> {
             onChanged: (value) {
               setState(() {
                 discount = double.tryParse(value) ?? 0.0; // Handle discount value parsing
+                updateSummary(); // Update the summary whenever discount is updated
               });
             },
           ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () => handlePayBill(netAmount),
-            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 120.0),),
-            child: const Text('Pay Bill',
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF470404),
+              padding: EdgeInsets.symmetric(horizontal: 120.0),
+            ),
+            child: const Text(
+              'Pay Bill',
               style: TextStyle(
                 color: Colors.white,
               ),
             ),
-          ), ],
+          ),
+        ],
       ),
     );
   }

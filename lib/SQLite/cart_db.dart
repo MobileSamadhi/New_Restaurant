@@ -28,6 +28,9 @@ class CartDatabaseHelper {
           productName TEXT,
           quantity INTEGER,
           price REAL,
+          grossAmount REAL,
+          discount REAL,
+          netAmount REAL,
           date TEXT,
           time TEXT
         )

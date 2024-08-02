@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:synnex_mobile/Views/dashboard.dart';
 import '../SQLite/cart_db.dart';
 
 class BillAndCartViewPage extends StatefulWidget {
@@ -43,8 +45,23 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bill and Cart View'),
-        backgroundColor: Colors.teal,
+        title: Text('Bill and Cart View',
+          style: GoogleFonts.poppins(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFE0FFFF),
+        ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardPage()),
+            );
+          },
+        ),
+        backgroundColor: Color(0xFF470404),
       ),
       body: Row(
         children: [
@@ -52,12 +69,12 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
           Expanded(
             flex: 1,
             child: Container(
-              color: Colors.teal[50],
+              color: Color(0xFFDAB3AC).withOpacity(0.3),
               child: ListView.builder(
                 itemCount: billIds.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    color: selectedBillId == billIds[index] ? Colors.teal[100] : Colors.white,
+                    color: selectedBillId == billIds[index] ? Color(0xFFDAB3AC) : Colors.white,
                     child: ListTile(
                       title: Text('Bill ID: ${billIds[index]}'),
                       onTap: () => fetchBillDetails(billIds[index]),
@@ -79,6 +96,7 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
                 itemBuilder: (context, index) {
                   final product = billDetails[index];
                   return Card(
+                    color:  Color(0xFFDAB3AC),
                     margin: EdgeInsets.all(10),
                     child: ListTile(
                       title: Text(product['productName'], style: TextStyle(fontWeight: FontWeight.bold)),
