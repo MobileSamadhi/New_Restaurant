@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:synnex_mobile/Views/product_category.dart';
 import 'package:synnex_mobile/Views/products.dart';
 import 'package:synnex_mobile/Views/report.dart';
+import 'bill_cart_viewpage.dart';
 import 'bill_page.dart';
 import 'company_details.dart';
 
@@ -82,6 +83,14 @@ class DashboardPage extends StatelessWidget {
                         Color(0xFFad6c47), // Red color
                         Icons.report,
                         SalesSummaryPage(),
+                      ),
+                      const SizedBox(height: 20),
+                      buildDashboardButton(
+                        context,
+                        'View',
+                        Color(0xFFad6c47), // Red color
+                        Icons.view_agenda_rounded,
+                        BillAndCartViewPage(),
                       ),
                    //   const SizedBox(height: 40),
                    //   const Divider(color: Color(0xFF414042), thickness: 1), // Dark Gray color
