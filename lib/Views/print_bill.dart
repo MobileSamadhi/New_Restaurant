@@ -7,10 +7,10 @@ import '../JsonModels/company_model.dart';
 import '../JsonModels/product_model.dart';
 import '../SQLite/db_helper.dart';
 import '../SQLite/print_bill_db.dart';
-import 'bill_page.dart'; // Ensure correct import if using AddProductModel
+import 'bill_page.dart';
 
 class PrintBillPage extends StatefulWidget {
-  final List<Map<String, dynamic>> cart; // Add cart
+  final List<Map<String, dynamic>> cart;
   final String billNumber;
   final DateTime dateTime;
   final String address;
@@ -30,11 +30,9 @@ class PrintBillPage extends StatefulWidget {
     required this.grossAmount,
     required this.discount,
     required this.netAmount,
-  })
-  {
+  }) {
     print('Received Bill Number: $billNumber');
-    print('Received received Items: ${cart.map((item) => item.toString()).join(', ')}');
-// Add other prints to verify values
+    print('Received Items: ${cart.map((item) => item.toString()).join(', ')}');
   }
 
   @override
@@ -45,7 +43,8 @@ class _PrintBillPageState extends State<PrintBillPage> {
   final DBHelper dbHelper = DBHelper();
   CompanyModel? company;
   final BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
-
+  bool _isPrinting = false;
+  bool _isSaved = false;
 
   @override
   void initState() {
@@ -61,7 +60,6 @@ class _PrintBillPageState extends State<PrintBillPage> {
     });
   }
 
-
   Future<void> connectToPrinter() async {
     List<BluetoothDevice> devices = await bluetooth.getBondedDevices();
     if (devices.isNotEmpty) {
@@ -70,6 +68,12 @@ class _PrintBillPageState extends State<PrintBillPage> {
   }
 
   Future<void> _printBill() async {
+    if (_isPrinting) return;
+
+    setState(() {
+      _isPrinting = true;
+    });
+
     String addCenterMargin(String text, {int totalWidth = 42}) {
       int padding = (totalWidth - text.length) ~/ 2;
       return ' ' * padding + text + ' ' * padding;
@@ -82,7 +86,6 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
     if (company == null) return;
 
-    // Print bill logic
     bluetooth.printCustom(company!.companyName, 3, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(company!.address, 1, 1);
@@ -94,15 +97,18 @@ class _PrintBillPageState extends State<PrintBillPage> {
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
 
-    bluetooth.printCustom(addRightMargin("Name          Qty     Price     Total", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
-    // Save bill data to database
     final dbHelper = PrintBillDBHelper();
     final date = DateFormat('yyyy-MM-dd').format(widget.dateTime);
     final time = DateFormat('HH:mm').format(widget.dateTime);
 
-    for (var item in widget.cart) {
+    int totalItems = 0;
+    int totalQuantity = 0;
+
+    for (var i = 0; i < widget.cart.length; i++) {
+      var item = widget.cart[i];
       var product = item['product'];
       String name = '';
       double price = 0.0;
@@ -113,26 +119,35 @@ class _PrintBillPageState extends State<PrintBillPage> {
         name = product.noteTitle;
         price = product.notePrice!;
       }
-      var quantity = item['quantity'];
+      var quantity = item['quantity'] as int;
       var grossAmount = price * quantity;
       var netAmount = grossAmount - widget.discount;
 
-      await dbHelper.insertBill({
-        'productId': product.noteId,
-        'billId': int.tryParse(widget.billNumber) ?? 0, // Ensure billId is integer
-        'productName': name,
-        'quantity': quantity,
-        'price': price,
-        'grossAmount': widget.grossAmount,
-        'discount': widget.discount,
-        'netAmount': widget.netAmount,
-        'date': date,
-        'time': time,
-      });
+      if (!_isSaved) {
+        await dbHelper.insertBill({
+          'productId': product.noteId,
+          'billId': int.tryParse(widget.billNumber) ?? 0,
+          'productName': name,
+          'quantity': quantity,
+          'price': price,
+          'grossAmount': widget.grossAmount,
+          'discount': widget.discount,
+          'netAmount': widget.netAmount,
+          'date': date,
+          'time': time,
+        });
+      }
 
-      String itemLine = formatLine(name, quantity.toString(), price.toStringAsFixed(2), netAmount.toStringAsFixed(2));
+      String itemLine = formatLine((i + 1).toString(), name, quantity.toString(), price.toStringAsFixed(2), netAmount.toStringAsFixed(2));
       bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
+
+      totalItems++;
+      totalQuantity += quantity;
     }
+
+    setState(() {
+      _isSaved = true;
+    });
 
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
@@ -143,6 +158,10 @@ class _PrintBillPageState extends State<PrintBillPage> {
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
 
+    bluetooth.printCustom(addRightMargin("Total Items: $totalItems", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addRightMargin("Total Quantity: $totalQuantity", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
+
     bluetooth.printCustom(addCenterMargin("Thank You, Come Again!", totalWidth: 42), 1, 1);
     bluetooth.printCustom(addCenterMargin("Software provided by", totalWidth: 42), 1, 1);
     bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 1, 1);
@@ -150,20 +169,26 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
     bluetooth.printCustom("", 1, 1);
     bluetooth.paperCut();
+
+    setState(() {
+      _isPrinting = false;
+    });
   }
 
-  String formatLine(String name, String qty, String price, String total) {
+  String formatLine(String no, String name, String qty, String price, String total) {
+    const int noWidth = 3;
     const int nameWidth = 12;
     const int qtyWidth = 6;
     const int priceWidth = 9;
     const int totalWidth = 10;
 
+    String paddedNo = no.padRight(noWidth);
     String paddedName = (name.length > nameWidth) ? name.substring(0, nameWidth) : name.padRight(nameWidth);
     String paddedQty = qty.padLeft(qtyWidth);
     String paddedPrice = price.padLeft(priceWidth);
     String paddedTotal = total.padLeft(totalWidth);
 
-    return '$paddedName$paddedQty$paddedPrice$paddedTotal';
+    return '$paddedNo$paddedName$paddedQty$paddedPrice$paddedTotal';
   }
 
   String formatRightAligned(String key, String value, {int totalWidth = 42}) {
@@ -198,193 +223,223 @@ class _PrintBillPageState extends State<PrintBillPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-    child: Center(
-    child: company == null
-    ? CircularProgressIndicator()
-        : Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(10),
-    color: Colors.grey[200],
-    boxShadow: [
-    BoxShadow(
-    color: Colors.grey.withOpacity(0.5),
-    blurRadius: 10,
-    offset: Offset(0, 5),
-    ),
-    ],
-    ),
-    child: Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-                Text(
-                  company!.companyName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0072bc),
+          child: Center(
+            child: company == null
+                ? CircularProgressIndicator()
+                : Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey[200],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  company!.address,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    company!.companyName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0072bc),
+                    ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  company!.phone,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Center(
-                  child: Text(
-                    'Bill Id: ${widget.billNumber}',
+                  SizedBox(height: 5),
+                  Text(
+                    company!.address,
                     style: TextStyle(
                       fontSize: 16,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Center(
-                  child: Text(
-                    'User: ${widget.user}',
+                  SizedBox(height: 5),
+                  Text(
+                    company!.phone,
                     style: TextStyle(
                       fontSize: 16,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text(
-                        'Name',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Qty',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Price',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Total',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ],
-                  rows: widget.cart.map((item) {
-                    var product = item['product'];
-                    String name = '';
-                    double price = 0.0;
-                    if (product is AddProductModel) {
-                      name = product.noteTitle;
-                      price = product.notePrice;
-                    } else if (product is NoteModel) {
-                      name = product.noteTitle;
-                      price = product.notePrice!;
-                    }
-                    return DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text(name)),
-                        DataCell(Text(item['quantity'].toString())),
-                        DataCell(Text(price.toStringAsFixed(2))),
-                        DataCell(Text((price * item['quantity']).toStringAsFixed(2))),
-                      ],
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    'Gross Amount: ${widget.grossAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    'Discount: ${widget.discount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    'Net Amount: ${widget.netAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    'Thank you, come again!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    'Software provided by:',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    'Synnex IT Solution',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _printBill,
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF470404), padding: EdgeInsets.symmetric(horizontal: 100.0),),
-                    child: const Text('Print Bill',
+                  SizedBox(height: 5),
+                  Center(
+                    child: Text(
+                      'Bill Id: ${widget.billNumber}',
                       style: TextStyle(
-                        color: Colors.white, // Your color code here
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 5),
+                  Center(
+                    child: Text(
+                      'User: ${widget.user}',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  DataTable(
+                    columns: const <DataColumn>[
+                      DataColumn(
+                        label: Text(
+                          'No',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Name',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Qty',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Price',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Total',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ],
+                    rows: widget.cart.asMap().entries.map((entry) {
+                      var item = entry.value;
+                      var product = item['product'];
+                      String name = '';
+                      double price = 0.0;
+                      if (product is AddProductModel) {
+                        name = product.noteTitle;
+                        price = product.notePrice;
+                      } else if (product is NoteModel) {
+                        name = product.noteTitle;
+                        price = product.notePrice!;
+                      }
+                      return DataRow(
+                        cells: <DataCell>[
+                          DataCell(Text((entry.key + 1).toString())),
+                          DataCell(Text(name)),
+                          DataCell(Text(item['quantity'].toString())),
+                          DataCell(Text(price.toStringAsFixed(2))),
+                          DataCell(Text((price * item['quantity']).toStringAsFixed(2))),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      'Total Items: ${widget.cart.length}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Total Quantity: ${widget.cart.fold(0, (previousValue, item) => previousValue + (item['quantity'] as int))}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Gross Amount: ${widget.grossAmount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Discount: ${widget.discount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Net Amount: ${widget.netAmount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      'Thank you, come again!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Software provided by:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Synnex IT Solution',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _isPrinting ? null : _printBill,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF470404),
+                        padding: EdgeInsets.symmetric(horizontal: 100.0),
+                      ),
+                      child: const Text(
+                        'Print Bill',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
