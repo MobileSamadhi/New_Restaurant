@@ -151,15 +151,14 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
+    bluetooth.printCustom(addCenterMargin("Total Items: $totalItems", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Total Quantity: $totalQuantity", totalWidth: 42), 1, 1);
+    bluetooth.printNewLine();
     bluetooth.printCustom(addRightMargin(formatRightAligned("Gross Amount:", widget.grossAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
     bluetooth.printCustom(addRightMargin(formatRightAligned("Discount:", widget.discount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
     bluetooth.printCustom(addRightMargin(formatRightAligned("Net Amount:", widget.netAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
-    bluetooth.printNewLine();
-
-    bluetooth.printCustom(addRightMargin("Total Items: $totalItems", totalWidth: 42), 1, 1);
-    bluetooth.printCustom(addRightMargin("Total Quantity: $totalQuantity", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
 
     bluetooth.printCustom(addCenterMargin("Thank You, Come Again!", totalWidth: 42), 1, 1);
