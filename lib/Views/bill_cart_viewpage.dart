@@ -14,6 +14,7 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
   List<int> billIds = [];
   List<Map<String, dynamic>> billDetails = [];
   int? selectedBillId;
+  Map<String, dynamic>? commonBillDetails;
 
   @override
   void initState() {
@@ -31,17 +32,26 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
 
   Future<void> fetchBillDetails(int billId) async {
     final products = await dbHelper.getBillsById(billId);
-    setState(() {
-      billDetails = products;
-      selectedBillId = billId;
-    });
+    if (products.isNotEmpty) {
+      setState(() {
+        billDetails = products;
+        selectedBillId = billId;
+        commonBillDetails = {
+          'date': products[0]['date'],
+          'grossAmount': products[0]['grossAmount'],
+          'discount': products[0]['discount'],
+          'netAmount': products[0]['netAmount'],
+        };
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bill and Cart View',
+        title: Text(
+          'Bill and Cart View',
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -87,54 +97,54 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
               color: Colors.white,
               child: selectedBillId == null
                   ? Center(child: Text('Select a Bill ID to see details', style: TextStyle(fontSize: 18, color: Colors.grey)))
-                  : ListView.builder(
-                itemCount: billDetails.length,
-                itemBuilder: (context, index) {
-                  final product = billDetails[index];
-                  return Card(
-                    color:  Color(0xFFDAB3AC),
-                    margin: EdgeInsets.all(10),
-                    child: ListTile(
-                      title: Text(product['productName'], style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
+                  : Column(
+                children: [
+                  // Common Bill Details
+                  if (commonBillDetails != null)
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Quantity: ${product['quantity']}', style: TextStyle(color: Colors.black54)),
-                              Text('Price: ${(product['price']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Date: ${product['date']}', style: TextStyle(color: Colors.black54)),
-                              Text('Time: ${product['time']}', style: TextStyle(color: Colors.black54)),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Gross Amount: ${(product['grossAmount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Text('Discount: ${(product['discount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Text('Net Amount: ${(product['netAmount']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black)),
+                          Text('Date: ${commonBillDetails!['date']}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text('Gross Amount: ${(commonBillDetails!['grossAmount'] as double).toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
+                          Text('Discount: ${(commonBillDetails!['discount'] as double).toStringAsFixed(2)}', style: TextStyle(fontSize: 16)),
+                          Text('Net Amount: ${(commonBillDetails!['netAmount'] as double).toStringAsFixed(2)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Divider(color: Colors.black),
                         ],
                       ),
                     ),
-                  );
-                },
+                  // Bill Product Details
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: billDetails.length,
+                      itemBuilder: (context, index) {
+                        final product = billDetails[index];
+                        return Card(
+                          color: Color(0xFFDAB3AC),
+                          margin: EdgeInsets.all(10),
+                          child: ListTile(
+                            title: Text(product['productName'], style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Quantity: ${product['quantity']}', style: TextStyle(color: Colors.black54)),
+                                    Text('Price: ${(product['price']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
