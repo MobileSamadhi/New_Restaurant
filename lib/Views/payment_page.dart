@@ -34,6 +34,7 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
+    _amountPaidController.text = widget.amount.toStringAsFixed(2); // Auto load the amount to be paid
     _amountPaidController.addListener(_calculateChange);
   }
 
@@ -54,7 +55,7 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  Text(
+        title: Text(
           'Payment Options',
           style: GoogleFonts.poppins(
             fontSize: 22,
@@ -62,7 +63,6 @@ class _PaymentPageState extends State<PaymentPage> {
             color: Color(0xFFE0FFFF),
           ),
         ),
-
         backgroundColor: const Color(0xFF470404),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -218,16 +218,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _amountPaidController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the amount paid';
-                      }
-                      double amountPaid = double.tryParse(value) ?? 0.0;
-                      if (amountPaid < widget.amount) {
-                        return 'Amount paid must be equal to or greater than ${widget.amount}';
-                      }
-                      return null;
-                    },
+                    enabled: true, // Disable editing
                     decoration: const InputDecoration(
                       labelText: 'Amount Paid',
                       labelStyle: TextStyle(color: Color(0xFF470404)),
@@ -306,9 +297,9 @@ class _PaymentPageState extends State<PaymentPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF470404),
               ),
-              child: const Text('Submit',
-        style: TextStyle(
-        color: Colors.white),
+              child: const Text(
+                'Submit',
+                style: TextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -408,7 +399,8 @@ class _PaymentPageState extends State<PaymentPage> {
                         grossAmount: widget.grossAmount,
                         netAmount: widget.amount,
                         contactNumber: '',
-                        user: widget.user, address: '',
+                        user: widget.user,
+                        address: '',
                       ),
                     ),
                   );
@@ -417,13 +409,14 @@ class _PaymentPageState extends State<PaymentPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF470404),
               ),
-              child: const Text('Submit',style: TextStyle(
-                  color: Colors.white),),
+              child: const Text(
+                'Submit',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
       },
     );
   }
-
 }
