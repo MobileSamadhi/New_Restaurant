@@ -161,19 +161,28 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               pw.Table.fromTextArray(
                 context: context,
                 data: <List<String>>[
-                  <String>['Product ID', 'Product Name', 'Quantity', 'Price', 'Total Price', 'Date', 'Time'],
-                  ...cartItems.map((item) => [
-                    item['productId'].toString(),
-                    item['productName'],
-                    item['quantity'].toString(),
-                    item['price'].toString(),
-                    (item['price'] * item['quantity']).toStringAsFixed(2),
-                    item['date'],
-                    item['time'],
-                  ])
+                  <String>['No.', 'Product ID', 'Product Name', 'Quantity', 'Price', 'Total Price', 'Date', 'Time'],
+                  ...cartItems.asMap().entries.map((entry) {
+                    int index = entry.key + 1;
+                    var item = entry.value;
+                    return [
+                      index.toString(),
+                      item['productId'].toString(),
+                      item['productName'].toString(),
+                      item['quantity'].toString(),
+                      item['price'].toString(),
+                      (item['price'] * item['quantity']).toStringAsFixed(2),
+                      item['date'].toString(),
+                      item['time'].toString(),
+                    ];
+                  }).map((item) => item.map((e) => e.toString()).toList()).toList(),  // Convert each item to List<String>
                 ],
               ),
               pw.SizedBox(height: 20),
+              pw.Text(
+                'Total Items: ${cartItems.length}',
+                style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+              ),
               pw.Text(
                 'Total Quantity: ${cartItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}',
                 style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
@@ -224,22 +233,24 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
 
-    bluetooth.printCustom("Product Name     Qty     Price     Total", 1, 1);
+    bluetooth.printCustom("No.  Product Name     Qty     Price     Total", 1, 1);
     bluetooth.printCustom("------------------------------------------", 1, 1);
 
     final mergedItems = mergeCartItems(cartItems);
-    for (var item in mergedItems) {
+    for (var i = 0; i < mergedItems.length; i++) {
+      var item = mergedItems[i];
       String name = item['productName'];
       int quantity = item['quantity'];
       double price = item['price'];
       double total = item['totalPrice'];
 
-      String itemLine = formatLine(name, quantity.toString(), price.toStringAsFixed(2), total.toStringAsFixed(2));
+      String itemLine = formatLine((i + 1).toString(), name, quantity.toString(), price.toStringAsFixed(2), total.toStringAsFixed(2));
       bluetooth.printCustom(itemLine, 1, 1);
     }
 
     bluetooth.printCustom("------------------------------------------", 1, 1);
     bluetooth.printNewLine();
+    bluetooth.printCustom("Total Items: ${mergedItems.length}", 1, 1);
     bluetooth.printCustom("Total Quantity: ${mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}", 1, 1);
     bluetooth.printCustom("Total Sales: ${mergedItems.fold<double>(0, (sum, item) => sum + item['totalPrice']).toStringAsFixed(2)}", 1, 1);
     bluetooth.printNewLine();
@@ -253,18 +264,20 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     bluetooth.paperCut();
   }
 
-  String formatLine(String name, String qty, String price, String total) {
+  String formatLine(String no, String name, String qty, String price, String total) {
+    const int noWidth = 4;
     const int nameWidth = 12;
     const int qtyWidth = 6;
     const int priceWidth = 9;
     const int totalWidth = 10;
 
+    String paddedNo = no.padRight(noWidth);
     String paddedName = (name.length > nameWidth) ? name.substring(0, nameWidth) : name.padRight(nameWidth);
     String paddedQty = qty.padLeft(qtyWidth);
     String paddedPrice = price.padLeft(priceWidth);
     String paddedTotal = total.padLeft(totalWidth);
 
-    return '$paddedName$paddedQty$paddedPrice$paddedTotal';
+    return '$paddedNo$paddedName$paddedQty$paddedPrice$paddedTotal';
   }
 
   List<Map<String, dynamic>> mergeCartItems(List<Map<String, dynamic>> items) {
@@ -446,35 +459,61 @@ class SalesSummaryTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final mergedItems = mergeCartItems(cartItems);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: [
-          DataColumn(label: Text('Product Name')),
-          DataColumn(label: Text('Quantity')),
-          DataColumn(label: Text('Price')),
-          DataColumn(label: Text('Total Price')),
-          DataColumn(label: Text('Date')),
-          DataColumn(label: Text('Time')),
-        ],
-        rows: mergedItems.map((item) {
-          final productName = item['productName'] ?? 'Unknown Product';
-          final quantity = item['quantity'] ?? 0;
-          final price = item['price'] ?? 0.0;
-          final totalPrice = item['totalPrice'] ?? 0.0;
-          final date = item['date'] ?? '';
-          final time = item['time'] ?? '';
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text('No.')),
+              DataColumn(label: Text('Product Name')),
+              DataColumn(label: Text('Quantity')),
+              DataColumn(label: Text('Price')),
+              DataColumn(label: Text('Total Price')),
+              DataColumn(label: Text('Date')),
+              DataColumn(label: Text('Time')),
+            ],
+            rows: mergedItems.asMap().entries.map((entry) {
+              int index = entry.key + 1;
+              var item = entry.value;
+              final productName = item['productName'] ?? 'Unknown Product';
+              final quantity = item['quantity'] ?? 0;
+              final price = item['price'] ?? 0.0;
+              final totalPrice = item['totalPrice'] ?? 0.0;
+              final date = item['date'] ?? '';
+              final time = item['time'] ?? '';
 
-          return DataRow(cells: [
-            DataCell(Text(productName)),
-            DataCell(Text(quantity.toString())),
-            DataCell(Text(price.toStringAsFixed(2))),
-            DataCell(Text(totalPrice.toStringAsFixed(2))),
-            DataCell(Text(date)),
-            DataCell(Text(time)),
-          ]);
-        }).toList(),
-      ),
+              return DataRow(cells: [
+                DataCell(Text(index.toString())),
+                DataCell(Text(productName)),
+                DataCell(Text(quantity.toString())),
+                DataCell(Text(price.toStringAsFixed(2))),
+                DataCell(Text(totalPrice.toStringAsFixed(2))),
+                DataCell(Text(date)),
+                DataCell(Text(time)),
+              ]);
+            }).toList(),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Total Items: ${mergedItems.length}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.end,
+              ),
+              Text(
+                'Total Quantity: ${mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.end,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
