@@ -233,8 +233,11 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
 
-    bluetooth.printCustom("No.  Product Name     Qty     Price     Total", 1, 1);
-    bluetooth.printCustom("------------------------------------------", 1, 1);
+   //bluetooth.printCustom("No.  Product Name     Qty     Price     Total", 1, 1);
+   //bluetooth.printCustom("------------------------------------------", 1, 1);
+
+    bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
     final mergedItems = mergeCartItems(cartItems);
     for (var i = 0; i < mergedItems.length; i++) {

@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Synnex Cloud Mobile Lite',
+      title: 'Cinnamon Dine Mobi',
       theme: ThemeData(
        // textTheme: GoogleFonts.poppins(),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
