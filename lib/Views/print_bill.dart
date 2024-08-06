@@ -92,7 +92,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
     bluetooth.printCustom(company!.phone, 1, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(addCenterMargin("Bill No: ${widget.billNumber}", totalWidth: 42), 1, 1);
-    bluetooth.printCustom(addCenterMargin("Date: ${DateFormat('yyyy-MM-dd HH:mm').format(widget.dateTime)}", totalWidth: 42), 1, 1);
+    bluetooth.printCustom(addCenterMargin("Date: ${DateFormat('yyyy-MM-dd HH:mm a').format(widget.dateTime)}", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();
     bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
     bluetooth.printNewLine();

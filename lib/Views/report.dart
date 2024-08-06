@@ -215,7 +215,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       return text.padRight(totalWidth - rightMargin);
     }
 
-    String currentDateTime = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+    String currentDateTime = DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.now());
 
     bluetooth.printCustom("", 1, 1);
     bluetooth.printCustom(addCenterMargin("Sales Summary", totalWidth: 42), 5, 1);
