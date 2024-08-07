@@ -13,7 +13,6 @@ import 'dashboard.dart';
 import 'report.dart';
 
 class BillingPage extends StatefulWidget {
-
   @override
   _BillingPageState createState() => _BillingPageState();
 }
@@ -25,7 +24,7 @@ class _BillingPageState extends State<BillingPage> {
   late Future<List<AddProductModel>> products;
   List<AddProductModel> filteredProducts = [];
   List<Map<String, dynamic>> cart = [];
-  double discount = 0.0 ;
+  double discount = 0.0;
   TextEditingController productSearchController = TextEditingController();
   String? selectedCategory;
 
@@ -129,17 +128,26 @@ class _BillingPageState extends State<BillingPage> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      cart.add({
-                        'product': product,
-                        'quantity': quantity,
-                      });
+                      bool productExists = false;
+                      for (var item in cart) {
+                        if (item['product'].noteId == product.noteId) {
+                          item['quantity'] += quantity;
+                          productExists = true;
+                          break;
+                        }
+                      }
+                      if (!productExists) {
+                        cart.add({
+                          'product': product,
+                          'quantity': quantity,
+                        });
+                      }
                     });
                     Navigator.of(context).pop();
                     updateSummary(); // Update the summary whenever a product is added
 
                     double grossAmount = product.notePrice * quantity;
                     double netAmount = grossAmount - discount;
-
 
                     CartDatabaseHelper().insertProduct({
                       'productId': product.noteId,
@@ -556,7 +564,6 @@ class _BillingPageState extends State<BillingPage> {
                 updateSummary(); // Update the summary whenever discount is updated
               });
             },
-
           ),
           const SizedBox(height: 10),
           ElevatedButton(
