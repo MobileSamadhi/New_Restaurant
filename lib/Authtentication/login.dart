@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:synnex_mobile/Authtentication/signup.dart';
 import 'package:synnex_mobile/JsonModels/users.dart';
 import 'package:synnex_mobile/SQLite/sqlite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Views/dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,10 +20,46 @@ class _LoginScreenState extends State<LoginScreen> {
   // A bool variable for show and hide password
   bool isVisible = false;
 
+  // A bool variable for remember password
+  bool rememberPassword = false;
+
   // Here is our bool variable
   bool isLoginTrue = false;
 
   final db = DatabaseHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    loadSavedCredentials();
+  }
+
+  Future<void> loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedUsername = prefs.getString('username') ?? '';
+    final savedPassword = prefs.getString('password') ?? '';
+    final remember = prefs.getBool('rememberPassword') ?? false;
+
+    if (remember) {
+      setState(() {
+        username.text = savedUsername;
+        password.text = savedPassword;
+        rememberPassword = remember;
+      });
+    }
+  }
+
+  Future<void> saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberPassword) {
+      await prefs.setString('username', username.text);
+      await prefs.setString('password', password.text);
+    } else {
+      await prefs.remove('username');
+      await prefs.remove('password');
+    }
+    await prefs.setBool('rememberPassword', rememberPassword);
+  }
 
   // Now we should call this function in login button
   login() async {
@@ -31,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response == true) {
       // If login is correct, then goto dashboard
       if (!mounted) return;
+      await saveCredentials();
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => DashboardPage()));
     } else {
@@ -135,6 +173,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 10),
+                  // Remember password checkbox
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: rememberPassword,
+                        onChanged: (value) {
+                          setState(() {
+                            rememberPassword = value!;
+                          });
+                        },
+                      ),
+                      const Text(
+                        "Remember Password",
+                        style: TextStyle(color: Color(0xFF414042)), // Dark Gray color
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   // Login button
                   Container(

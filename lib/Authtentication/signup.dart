@@ -55,7 +55,7 @@ class _SignUpState extends State<SignUp> {
                     width: 210,
                   ),
 
-                  // As we assigned our controller to the textformfields
+                  // As we assigned our controller to the text form fields
 
                   Container(
                     margin: EdgeInsets.all(8),
