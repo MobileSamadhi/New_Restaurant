@@ -107,7 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Before we show the image, after we copied the image we need to define the location in pubspec.yaml
                   Image.asset(
                     "lib/assets/login.png",
-                    width: 210,
+                    width: 350,
+                    height: 250,
                   ),
                   const SizedBox(height: 15),
                   Container(

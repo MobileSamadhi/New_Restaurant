@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: bidi
-      sha256: "1a7d0c696324b2089f72e7671fd1f1f64fef44c980f3cebc84e803967c597b63"
+      sha256: "9a712c7ddf708f7c41b1923aa83648a3ed44cfd75b04f72d598c45e5be287f9d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.10"
+    version: "2.0.12"
   blue_thermal_printer:
     dependency: "direct main"
     description:
@@ -77,18 +77,18 @@ packages:
     dependency: transitive
     description:
       name: cross_file
-      sha256: "5388c401d0a12412f95c9ab01d358b03854da532f8f9189034d3187644e44da4"
+      sha256: "7caf6a750a0c04effbb52a676dce9a4a592e10ad35c34d6d2d0e4811160d5670"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1+5"
+    version: "0.3.4+2"
   crypto:
     dependency: transitive
     description:
       name: crypto
-      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
+      sha256: ec30d999af904f33454ba22ed9a86162b35e52b44ac4807d1d93c288041d7d27
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "3.0.5"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -109,10 +109,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "493f37e7df1804778ff3a53bd691d8692ddf69702cf4c1c1096a2e41b4779e21"
+      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   file:
     dependency: transitive
     description:
@@ -170,10 +170,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "9d98bd47ef9d34e803d438f17fd32b116d31009f534a6fa5ce3a1167f189a6de"
+      sha256: "9ee02950848f61c4129af3d6ec84a1cfc0e47931abc746b03e7a3bc3e8ff6eda"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.21"
+    version: "2.0.22"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -228,10 +228,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: "3fe99e3a459b969f657565a853353bdea7e3d3cae34f7dd124836267d426ec87"
+      sha256: "8c5abf0dcc24fe6e8e0b4a5c0b51a5cf30cefdf6407a3213dae61edc75a70f56"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.12+10"
+    version: "0.8.12+12"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -288,14 +288,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.18.1"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -356,10 +348,10 @@ packages:
     dependency: transitive
     description:
       name: mime
-      sha256: "2e123074287cc9fd6c09de8336dae606d1ddb88d9ac47358826db698c176a1f2"
+      sha256: "801fd0b26f14a4a58ccb09d5892c3fbdeff209594300a542492cf13fba9d247a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   path:
     dependency: "direct main"
     description:
@@ -388,10 +380,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "490539678396d4c3c0b06efdaab75ae60675c3e0c66f72bc04c2e2c1e0e2abeb"
+      sha256: "6f01f8e37ec30b07bc424b4deabac37cacb1bc7e2e515ad74486039918a37eb7"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.9"
+    version: "2.2.10"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -428,10 +420,10 @@ packages:
     dependency: "direct main"
     description:
       name: pdf
-      sha256: "81d5522bddc1ef5c28e8f0ee40b71708761753c163e0c93a40df56fd515ea0f0"
+      sha256: "05df53f8791587402493ac97b9869d3824eccbc77d97855f4545cf72df3cae07"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.0"
+    version: "3.11.1"
   pdf_widget_wrapper:
     dependency: transitive
     description:
@@ -468,10 +460,10 @@ packages:
     dependency: "direct main"
     description:
       name: printing
-      sha256: "1c99cab90ebcc1fff65831d264627d5b529359d563e53f33ab9b8117f2d280bc"
+      sha256: de1889f30b34029fc46e5de6a9841498850b23d32942a9ee810ca36b0cb1b234
       url: "https://pub.dev"
     source: hosted
-    version: "5.12.0"
+    version: "5.13.2"
   qr:
     dependency: transitive
     description:
@@ -484,34 +476,34 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: d3bbe5553a986e83980916ded2f0b435ef2e1893dfaa29d5a7a790d0eca12180
+      sha256: "746e5369a43170c25816cc472ee016d3a66bc13fcf430c0bc41ad7b4b2922051"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.3"
+    version: "2.3.2"
   shared_preferences_android:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "041be4d9d2dc6079cf342bc8b761b03787e3b71192d658220a56cac9c04a0294"
+      sha256: "480ba4345773f56acda9abf5f50bd966f581dac5d514e5fc4a18c62976bbba7e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.2"
   shared_preferences_foundation:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "671e7a931f55a08aa45be2a13fe7247f2a41237897df434b30d2012388191833"
+      sha256: c4b35f6cb8f63c147312c054ce7c2254c8066745125264f0c88739c417fc9d9f
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.0"
+    version: "2.5.2"
   shared_preferences_linux:
     dependency: transitive
     description:
       name: shared_preferences_linux
-      sha256: "2ba0510d3017f91655b7543e9ee46d48619de2a2af38e5c790423f7007c7ccc1"
+      sha256: "580abfd40f415611503cae30adf626e6656dfb2f0cee8f465ece7b6defb40f2f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.1"
   shared_preferences_platform_interface:
     dependency: transitive
     description:
@@ -524,18 +516,18 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_web
-      sha256: d762709c2bbe80626ecc819143013cc820fa49ca5e363620ee20a8b15a3e3daf
+      sha256: d2ca4132d3946fec2184261726b355836a82c33d7d5b67af32692aff18a4684e
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.4.2"
   shared_preferences_windows:
     dependency: transitive
     description:
       name: shared_preferences_windows
-      sha256: "398084b47b7f92110683cac45c6dc4aae853db47e470e5ddcd52cab7f7196ab2"
+      sha256: "94ef0f72b2d71bc3e700e025db3710911bd51a71cefb65cc609dd0d9a982e3c1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.1"
   sky_engine:
     dependency: transitive
     description: flutter

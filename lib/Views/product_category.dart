@@ -182,7 +182,7 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
           title: const Text('Edit Category'),
           content: TextField(
             onChanged: (value) => editedCategory = value,
-            decoration: InputDecoration(hintText: 'Enter new category name', labelText: category.categoryName),
+            decoration: InputDecoration(labelText: category.categoryName),
           ),
           actions: <Widget>[
             TextButton(

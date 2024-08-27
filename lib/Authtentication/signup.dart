@@ -51,8 +51,9 @@ class _SignUpState extends State<SignUp> {
 
 
                   Image.asset(
-                    "lib/assets/sign.jpg",
-                    width: 210,
+                    "lib/assets/sign.png",
+                    width: 350,
+                    height: 250,
                   ),
 
                   // As we assigned our controller to the text form fields
