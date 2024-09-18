@@ -102,6 +102,20 @@ class DatabaseHelper {
     return db.insert('users', user.toMap());
   }
 
+  // Method to fetch all users
+  Future<List<Users>> getAllUsers() async {
+    final db = await initDB();
+    final List<Map<String, dynamic>> result = await db.query('users');
+    return result.map((map) => Users.fromMap(map)).toList();
+  }
+
+  // Method to delete a user by ID
+  Future<void> deleteUserById(int id) async {
+    final db = await initDB();
+    await db.delete('users', where: 'usrId = ?', whereArgs: [id]);
+  }
+
+
   //Search Method
   Future<List<NoteModel>> searchNotes(String keyword) async {
     final Database db = await initDB();

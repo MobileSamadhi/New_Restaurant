@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:synnex_mobile/Views/product_category.dart';
 import 'package:synnex_mobile/Views/products.dart';
 import 'package:synnex_mobile/Views/report.dart';
+import 'package:synnex_mobile/Views/setting_page.dart';
 import 'bill_cart_viewpage.dart';
 import 'bill_page.dart';
 import 'company_details.dart';
@@ -12,15 +13,16 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard',
+        title: Text(
+          'Dashboard',
           style: GoogleFonts.poppins(
-            fontSize: 22, // Adjust the font size as needed
-            fontWeight: FontWeight.bold, // Adjust the font weight as needed
-            color: Color(0xFFE0FFFF), // Adjust the text color as needed
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFE0FFFF),
           ),
-          ),
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,color: Colors.white,),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -28,14 +30,23 @@ class DashboardPage extends StatelessWidget {
             );
           },
         ),
-        backgroundColor: Color(0xFF470404), // Blue color
+        backgroundColor: Color(0xFF470404),
         centerTitle: true,
         elevation: 5,
         actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: Colors.white), // Add the settings icon
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()), // Navigate to SettingsPage
+              );
+            },
+          ),
         ],
       ),
       body: Column(
-        children:[
+        children: [
           Expanded(
             child: SingleChildScrollView(
               child: Center(
@@ -48,7 +59,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Company Details',
-                        Color(0xFFad6c47), // Purple color
+                        Color(0xFFad6c47),
                         Icons.business,
                         CompanyDetailsPage(),
                       ),
@@ -56,7 +67,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Product Category',
-                        Color(0xFFad6c47), // Green color
+                        Color(0xFFad6c47),
                         Icons.category,
                         ProductCategoryPage(),
                       ),
@@ -64,7 +75,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Products',
-                        Color(0xFFad6c47), // Blue color
+                        Color(0xFFad6c47),
                         Icons.shopping_bag,
                         Products(),
                       ),
@@ -72,7 +83,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Cart',
-                        Color(0xFFad6c47), // Orange color
+                        Color(0xFFad6c47),
                         Icons.shopping_cart,
                         BillingPage(),
                       ),
@@ -80,7 +91,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Report',
-                        Color(0xFFad6c47), // Red color
+                        Color(0xFFad6c47),
                         Icons.report,
                         SalesSummaryPage(),
                       ),
@@ -88,13 +99,10 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'View',
-                        Color(0xFFad6c47), // Red color
+                        Color(0xFFad6c47),
                         Icons.view_agenda_rounded,
                         BillAndCartViewPage(),
                       ),
-                   //   const SizedBox(height: 40),
-                   //   const Divider(color: Color(0xFF414042), thickness: 1), // Dark Gray color
-                  //    const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -110,7 +118,7 @@ class DashboardPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF414042), // Dark Gray color
+                color: Color(0xFF414042),
               ),
             ),
           ),
@@ -144,3 +152,4 @@ class DashboardPage extends StatelessWidget {
     );
   }
 }
+

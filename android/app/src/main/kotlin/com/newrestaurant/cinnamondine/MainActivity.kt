@@ -1,4 +1,4 @@
-package com.example.synnex_mobile
+package com.newrestaurant.cinnamondine
 
 import io.flutter.embedding.android.FlutterActivity
 
