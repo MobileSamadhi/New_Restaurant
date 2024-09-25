@@ -13,19 +13,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // We need two text editing controllers
   final username = TextEditingController();
   final password = TextEditingController();
-
-  // A bool variable for show and hide password
   bool isVisible = false;
-
-  // A bool variable for remember password
   bool rememberPassword = false;
-
-  // Here is our bool variable
   bool isLoginTrue = false;
-
   final db = DatabaseHelper();
 
   @override
@@ -61,25 +53,21 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setBool('rememberPassword', rememberPassword);
   }
 
-  // Now we should call this function in login button
   login() async {
     var response = await db
         .login(Users(usrName: username.text, usrPassword: password.text));
     if (response == true) {
-      // If login is correct, then goto dashboard
       if (!mounted) return;
       await saveCredentials();
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => DashboardPage()));
     } else {
-      // If not, true the bool value to show error message
       setState(() {
         isLoginTrue = true;
       });
     }
   }
 
-  // We have to create global key for our form
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -89,10 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            // We put all our textfields into a form to be controlled and not allow empty fields
             child: Form(
               key: formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Page header image
                   Image.asset(
@@ -102,21 +90,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 15),
-                  // Username field
-
-                  // Before we show the image, after we copied the image we need to define the location in pubspec.yaml
                   Image.asset(
                     "lib/assets/login.png",
                     width: 350,
                     height: 250,
                   ),
                   const SizedBox(height: 15),
+                  // Username field
                   Container(
                     margin: const EdgeInsets.all(8),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
+                      color: const Color(0xFF470404).withOpacity(.2),
                     ),
                     child: TextFormField(
                       controller: username,
@@ -127,21 +113,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.person, color: Color(0xFF470404)), // Blue color
+                        icon: Icon(Icons.person, color: Color(0xFF470404)),
                         border: InputBorder.none,
                         hintText: "Username",
-                        hintStyle: TextStyle(color: Color(0xFF414042)), // Dark Gray color
+                        hintStyle: TextStyle(color: Color(0xFF414042)),
                       ),
                     ),
                   ),
-
                   // Password field
                   Container(
                     margin: const EdgeInsets.all(8),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF470404).withOpacity(.2), // Blue color with opacity
+                      color: const Color(0xFF470404).withOpacity(.2),
                     ),
                     child: TextFormField(
                       controller: password,
@@ -153,27 +138,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       obscureText: !isVisible,
                       decoration: InputDecoration(
-                        icon: const Icon(Icons.lock, color: Color(0xFF470404)), // Blue color
+                        icon: const Icon(Icons.lock, color: Color(0xFF470404)),
                         border: InputBorder.none,
                         hintText: "Password",
-                        hintStyle: const TextStyle(color: Color(0xFF414042)), // Dark Gray color
+                        hintStyle: const TextStyle(color: Color(0xFF414042)),
                         suffixIcon: IconButton(
                           onPressed: () {
-                            // In here we will create a click to show and hide the password a toggle button
                             setState(() {
-                              // toggle button
                               isVisible = !isVisible;
                             });
                           },
-                          icon: Icon(isVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                              color: Color(0xFF414042)), // Dark Gray color
+                          icon: Icon(
+                            isVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: const Color(0xFF414042),
+                          ),
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 10),
                   // Remember password checkbox
                   Row(
@@ -189,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const Text(
                         "Remember Password",
-                        style: TextStyle(color: Color(0xFF414042)), // Dark Gray color
+                        style: TextStyle(color: Color(0xFF414042)),
                       ),
                     ],
                   ),
@@ -200,70 +184,60 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: MediaQuery.of(context).size.width * .9,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Color(0xFF470404), // Blue color
+                      color: const Color(0xFF470404),
                     ),
                     child: TextButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            // Login method will be here
-                            login();
-                          }
-                        },
-                        child: const Text(
-                          "LOGIN",
-                          style: TextStyle(color: Colors.white),
-                        )),
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          login();
+                        }
+                      },
+                      child: const Text(
+                        "LOGIN",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
-
                   // Sign up button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
                         "Don't have an account?",
-                        style: TextStyle(color: Color(0xFF414042)), // Dark Gray color
+                        style: TextStyle(color: Color(0xFF414042)),
                       ),
                       TextButton(
-                          onPressed: () {
-                            // Navigate to sign up
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SignUp()));
-                          },
-                          child: const Text(
-                            "SIGN UP",
-                            style: TextStyle(color: Color(0xFF470404)), // Blue color
-                          ))
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUp()));
+                        },
+                        child: const Text(
+                          "SIGN UP",
+                          style: TextStyle(color: Color(0xFF470404)),
+                        ),
+                      ),
                     ],
                   ),
-
-                  // We will disable this message by default, when user and pass is incorrect we will trigger this message to user
                   isLoginTrue
                       ? const Text(
                     "Username or password is incorrect",
-                    style: TextStyle(color: Color(0xFFD71920)), // Red color
+                    style: TextStyle(color: Color(0xFFD71920)),
                   )
                       : const SizedBox(),
+                  const SizedBox(height: 20),
+                  // Powered by Synnex IT Solution by 2024 (Footer Text)
+                  const Text(
+                    'Powered by Synnex IT Solution 2024',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF414042),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Container(
-          height: 10, // Adjust the height as needed
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            child: Text(
-              'Powered by Synnex IT Solution by 2024',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF414042), // Dark Gray color
               ),
             ),
           ),
@@ -272,3 +246,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
