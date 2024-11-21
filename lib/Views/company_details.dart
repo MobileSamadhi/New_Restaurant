@@ -67,7 +67,7 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
   Future<void> _saveCompanyDetails() async {
     if (_formKey.currentState!.validate()) {
       CompanyModel company = CompanyModel(
-        companyId: 1,
+        companyId: 1, // Assuming a single company record with ID 1
         companyName: _nameController.text,
         address: _addressController.text,
         phone: _phoneController.text,
@@ -76,10 +76,21 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
         logoPath: _logoPathController.text,
       );
 
-      await dbHelper.insertCompany(company);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Company details saved')),
-      );
+      // Check if company exists
+      CompanyModel? existingCompany = await dbHelper.getCompany(1);
+      if (existingCompany != null) {
+        // Update existing company
+        await dbHelper.updateCompany(company);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Company details updated successfully')),
+        );
+      } else {
+        // Insert new company
+        await dbHelper.insertCompany(company);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Company details saved successfully')),
+        );
+      }
     }
   }
 
