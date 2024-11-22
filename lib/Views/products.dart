@@ -273,10 +273,106 @@ class _ProductsState extends State<Products> {
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15), // Rounded corners
+                                        ),
+                                        backgroundColor: const Color(0xFFF9F9F9), // Light background color
+                                        title: Row(
+                                          children: [
+                                            const Icon(Icons.edit, color: Color(0xFFad6c47)),
+                                            const SizedBox(width: 8),
+                                            const Text(
+                                              "Update Product",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF470404), // Primary color
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              TextFormField(
+                                                controller: title,
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    return "Product Name is required";
+                                                  }
+                                                  return null;
+                                                },
+                                                decoration: InputDecoration(
+                                                  labelText: "Product Name",
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10.0),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(color: Color(0xFFad6c47)),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextFormField(
+                                                controller: content,
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    return "Quantity is required";
+                                                  }
+                                                  return null;
+                                                },
+                                                decoration: InputDecoration(
+                                                  labelText: "Quantity",
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10.0),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(color: Color(0xFFad6c47)),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              TextFormField(
+                                                controller: price,
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    return "Price is required";
+                                                  }
+                                                  return null;
+                                                },
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  labelText: "Price",
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(10.0),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderSide: BorderSide(color: Color(0xFFad6c47)),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                         actions: [
                                           Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              TextButton(
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.green, // Green for update action
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                ),
                                                 onPressed: () {
                                                   db.updateProduct(AddProductModel(
                                                     noteId: items[index].noteId,
@@ -295,60 +391,35 @@ class _ProductsState extends State<Products> {
                                                     Navigator.pop(context);
                                                   });
                                                 },
-                                                child: const Text("Update"),
+                                                child: const Text(
+                                                  "Update",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
                                               ),
-                                              TextButton(
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red, // Red for cancel action
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                ),
                                                 onPressed: () {
                                                   Navigator.pop(context);
                                                 },
-                                                child: const Text("Cancel"),
+                                                child: const Text(
+                                                  "Cancel",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
                                               ),
                                             ],
                                           ),
                                         ],
-                                        title: const Text("Update Product"),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextFormField(
-                                              controller: title,
-                                              validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return "Product Name is required";
-                                                }
-                                                return null;
-                                              },
-                                              decoration: const InputDecoration(
-                                                labelText: "Product Name",
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: content,
-                                              validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return "Quantity is required";
-                                                }
-                                                return null;
-                                              },
-                                              decoration: const InputDecoration(
-                                                labelText: "Quantity",
-                                              ),
-                                            ),
-                                            TextFormField(
-                                              controller: price,
-                                              validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return "Price is required";
-                                                }
-                                                return null;
-                                              },
-                                              keyboardType: TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                labelText: "Price",
-                                              ),
-                                            ),
-                                          ],
-                                        ),
                                       );
                                     },
                                   );
@@ -361,23 +432,71 @@ class _ProductsState extends State<Products> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("Delete Item"),
-                                        content: Text("Are you sure you want to delete this Item?"),
-                                        actions: <Widget>[
-                                          TextButton( // Changed FlatButton to TextButton
-                                            child: Text("Cancel"),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15), // Rounded corners
+                                        ),
+                                        backgroundColor: const Color(0xFFF9F9F9), // Light background color
+                                        title: Row(
+                                          children: [
+                                            const Icon(Icons.warning, color: Colors.red),
+                                            const SizedBox(width: 8),
+                                            const Text(
+                                              "Delete Item",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF470404), // Dark text color
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        content: const Text(
+                                          "Are you sure you want to delete this item?",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xFF414042), // Neutral text color
+                                          ),
+                                        ),
+                                        actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        actions: [
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.grey, // Gray for cancel action
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
+                                            child: const Text(
+                                              "Cancel",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                            ),
                                           ),
-                                          TextButton( // Changed FlatButton to TextButton
-                                            child: Text("Delete"),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red, // Red for delete action
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                            ),
                                             onPressed: () {
                                               db.deleteProduct(items[index].noteId!).whenComplete(() {
                                                 _refresh();
                                               });
                                               Navigator.of(context).pop();
                                             },
+                                            child: const Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       );

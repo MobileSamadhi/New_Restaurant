@@ -204,84 +204,118 @@ class _PaymentPageState extends State<PaymentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Cash Payment', style: TextStyle(color: Color(0xFF470404))),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Please enter the amount paid and the change to be returned:',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _amountPaidController,
-                    enabled: true, // Disable editing
-                    decoration: const InputDecoration(
-                      labelText: 'Amount Paid',
-                      labelStyle: TextStyle(color: Color(0xFF470404)),
-                      border: OutlineInputBorder(),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _changeController,
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Change',
-                      labelStyle: TextStyle(color: Color(0xFF470404)),
-                      border: OutlineInputBorder(),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          backgroundColor: const Color(0xFFF9F9F9),
+          title: Row(
+            children: [
+              const Icon(Icons.money, color: Color(0xFF470404)),
+              const SizedBox(width: 8),
+              const Text(
+                'Cash Payment',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF470404),
+                ),
               ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Please enter the amount paid and view the change:',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _amountPaidController,
+                  enabled: true,
+                  decoration: InputDecoration(
+                    labelText: 'Amount Paid',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404)),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _changeController,
+                  enabled: false,
+                  decoration: InputDecoration(
+                    labelText: 'Change',
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404)),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
             ),
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () {
-                // Reset payment success status
+                Navigator.of(context).pop();
                 setState(() {
                   _paymentSuccess = false;
                 });
-                Navigator.of(context).pop();
               },
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                ),
               ),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF470404),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: const Icon(Icons.check, color: Colors.white),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   setState(() {
-                    _paymentSuccess = true; // Update payment success status
+                    _paymentSuccess = true;
                   });
-                  Navigator.of(context).pop(true);
-                  _showMessage(context, 'Payment Result', 'Payment Successful', Color(0xFF470404));
-                  // Navigate to PrintBillPage
+                  Navigator.of(context).pop();
+                  _showMessage(context, 'Payment Successful', 'Cash payment received successfully.', Colors.green);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PrintBillPage(
                         cart: widget.cart,
-                        address: '117 Galle Rd, Colombo 00400',
                         billNumber: widget.billNumber,
                         dateTime: DateTime.now(),
                         discount: widget.discount,
@@ -289,17 +323,15 @@ class _PaymentPageState extends State<PaymentPage> {
                         netAmount: widget.amount,
                         contactNumber: '',
                         user: widget.user,
+                        address: '117 Galle Rd, Colombo 00400',
                       ),
                     ),
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF470404),
-              ),
-              child: const Text(
+              label: const Text(
                 'Submit',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
           ],
@@ -313,61 +345,85 @@ class _PaymentPageState extends State<PaymentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Card Payment', style: TextStyle(color: Color(0xFF470404))),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Please select card type:',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    value: selectedCardType,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCardType = newValue!;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Card Type',
-                      labelStyle: TextStyle(color: Color(0xFF470404)),
-                      border: OutlineInputBorder(),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF470404)),
-                      ),
-                    ),
-                    items: <String>[
-                      'Visa',
-                      'MasterCard',
-                      'American Express',
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Amount to Pay: ${widget.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          backgroundColor: const Color(0xFFF9F9F9),
+          title: Row(
+            children: [
+              const Icon(Icons.credit_card, color: Color(0xFF470404)),
+              const SizedBox(width: 8),
+              const Text(
+                'Card Payment',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF470404),
+                ),
               ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Please select your card type:',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: selectedCardType,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCardType = newValue!;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Card Type',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404)),
+                    ),
+                  ),
+                  items: const <String>[
+                    'Visa',
+                    'MasterCard',
+                    'American Express',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Amount to Pay: ${widget.amount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 setState(() {
@@ -376,18 +432,28 @@ class _PaymentPageState extends State<PaymentPage> {
               },
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                ),
               ),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF470404),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: const Icon(Icons.check, color: Colors.white),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   setState(() {
-                    _paymentSuccess = true; // Update payment success status
+                    _paymentSuccess = true;
                   });
                   Navigator.of(context).pop();
-                  _showMessage(context, 'Payment Result', 'Payment Successful', Color(0xFF470404));
-                  // Navigate to PrintBillPage
+                  _showMessage(context, 'Payment Successful', 'Card payment processed successfully.', Colors.green);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -400,18 +466,15 @@ class _PaymentPageState extends State<PaymentPage> {
                         netAmount: widget.amount,
                         contactNumber: '',
                         user: widget.user,
-                        address: '',
+                        address: '117 Galle Rd, Colombo 00400',
                       ),
                     ),
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF470404),
-              ),
-              child: const Text(
+              label: const Text(
                 'Submit',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
           ],

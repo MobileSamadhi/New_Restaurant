@@ -86,81 +86,165 @@ class _BillingPageState extends State<BillingPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Product Added'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15), // Rounded corners
+              ),
+              backgroundColor: const Color(0xFFF9F9F9), // Light background color
+              title: Row(
                 children: [
-                  Text('${product.noteTitle} has been added to the cart.'),
-                  Text('Quantity: $quantity'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove),
-                        onPressed: () {
-                          if (quantity > 1) {
-                            setState(() {
-                              quantity--;
-                            });
-                          }
-                        },
-                      ),
-                      Text('$quantity'),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () {
-                          setState(() {
-                            quantity++;
-                          });
-                        },
-                      ),
-                    ],
+                  Icon(Icons.shopping_cart, color: Color(0xFF470404)),
+                  SizedBox(width: 8),
+                  const Text(
+                    'Product Added',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF470404), // Dark primary color
+                    ),
                   ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Cancel'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${product.noteTitle} has been added to the cart.',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF414042), // Neutral text color
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Quantity: $quantity',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF414042),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(8),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                          onPressed: () {
+                            if (quantity > 1) {
+                              setState(() {
+                                quantity--;
+                              });
+                            }
+                          },
+                          child: const Icon(Icons.remove, color: Colors.white),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            '$quantity',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF470404),
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(8),
+                            backgroundColor: Colors.green,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              quantity++;
+                            });
+                          },
+                          child: const Icon(Icons.add, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      bool productExists = false;
-                      for (var item in cart) {
-                        if (item['product'].noteId == product.noteId) {
-                          item['quantity'] += quantity;
-                          productExists = true;
-                          break;
-                        }
-                      }
-                      if (!productExists) {
-                        cart.add({
-                          'product': product,
-                          'quantity': quantity,
+              ),
+              actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey, // Cancel button color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF470404), // Add to Cart button color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          bool productExists = false;
+                          for (var item in cart) {
+                            if (item['product'].noteId == product.noteId) {
+                              item['quantity'] += quantity;
+                              productExists = true;
+                              break;
+                            }
+                          }
+                          if (!productExists) {
+                            cart.add({
+                              'product': product,
+                              'quantity': quantity,
+                            });
+                          }
                         });
-                      }
-                    });
-                    Navigator.of(context).pop();
-                    updateSummary(); // Update the summary whenever a product is added
+                        Navigator.of(context).pop();
+                        updateSummary(); // Update the summary whenever a product is added
 
-                    double grossAmount = product.notePrice * quantity;
-                    double netAmount = grossAmount - discount;
+                        double grossAmount = product.notePrice * quantity;
+                        double netAmount = grossAmount - discount;
 
-                    CartDatabaseHelper().insertProduct({
-                      'productId': product.noteId,
-                      'billId': billId,
-                      'productName': product.noteTitle,
-                      'quantity': quantity,
-                      'price': product.notePrice,
-                      'grossAmount': grossAmount,
-                      'discount': discount,
-                      'netAmount': netAmount,
-                    }); // Insert the product into the SQLite database
-                  },
-                  child: Text('Add to Cart'),
+                        CartDatabaseHelper().insertProduct({
+                          'productId': product.noteId,
+                          'billId': billId,
+                          'productName': product.noteTitle,
+                          'quantity': quantity,
+                          'price': product.notePrice,
+                          'grossAmount': grossAmount,
+                          'discount': discount,
+                          'netAmount': netAmount,
+                        }); // Insert the product into the SQLite database
+                      },
+                      child: const Text(
+                        'Add to Cart',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );
