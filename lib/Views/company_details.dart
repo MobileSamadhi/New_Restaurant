@@ -82,17 +82,32 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
         // Update existing company
         await dbHelper.updateCompany(company);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Company details updated successfully')),
+          const SnackBar(
+            content: Text('Company details updated successfully!'),
+            backgroundColor: Color(0xFFad6c47),
+          ),
         );
       } else {
         // Insert new company
         await dbHelper.insertCompany(company);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Company details saved successfully')),
+          const SnackBar(
+            content: Text('Company details saved successfully!'),
+            backgroundColor: Color(0xFFad6c47),
+          ),
         );
       }
+
+      // Navigate to Dashboard Page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(),
+        ),
+      );
     }
   }
+
 
   @override
   void dispose() {

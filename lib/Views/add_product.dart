@@ -179,24 +179,24 @@ class _AddProductState extends State<AddProduct> {
                     if (formKey.currentState!.validate()) {
                       final product = AddProductModel(
                         noteTitle: title.text,
-                        noteContent: '', // No longer using quantity
+                        noteContent: '',
                         notePrice: double.parse(price.text),
                         noteCategory: selectedCategory,
-                        noteImage: _image?.path ?? '', // Save image path or an empty string
-                        availableStock: 0, // Default value or adjust as needed
+                        noteImage: _image?.path ?? '',
+                        availableStock: 0,
                         date: DateTime.now().toIso8601String(),
-                        noteStock: 0, // Default value or adjust as needed
-                        saleStock: 0, // Set saleStock to 0 by default
+                        noteStock: 0,
+                        saleStock: 0,
                         time: TimeOfDay.now().format(context),
                       );
 
                       final note = NoteModel(
                         noteTitle: title.text,
-                        noteContent: '', // No longer using quantity
+                        noteContent: '',
                         notePrice: double.parse(price.text),
                         createdAt: DateTime.now().toIso8601String(),
                         noteCategory: selectedCategory,
-                        noteImage: _image?.path ?? '', // Save image path or an empty string
+                        noteImage: _image?.path ?? '',
                       );
 
                       // Insert into both databases
@@ -204,9 +204,28 @@ class _AddProductState extends State<AddProduct> {
                         database.insertProduct(product),
                         db.createNote(note),
                       ]).then((_) {
-                        Navigator.of(context).pop(true);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Product '${title.text}' added successfully!",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            backgroundColor: Color(0xFFad6c47),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                        Navigator.of(context).pop(true); // Navigate back or refresh
                       }).catchError((error) {
-                        print("Error Adding Product/Note: $error");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Error adding product: $error",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
                       });
                     }
                   },

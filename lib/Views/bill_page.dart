@@ -564,10 +564,16 @@ class _BillingPageState extends State<BillingPage> {
             const SizedBox(width: 6),
             Expanded(
               flex: 1,
-              child: Text(
-                '$price',
-                textAlign: TextAlign.right,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end, // Aligns price and icon to the right
+                children: [
+                  Text(
+                    '${double.parse(price).toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
+                  ),
+                  const SizedBox(width: 10), // Spacing between price and icon
+                  const Icon(Icons.shopping_cart, size: 20, color: Color(0xFF470404)), // Cart icon
+                ],
               ),
             ),
           ],

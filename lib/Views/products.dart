@@ -136,19 +136,23 @@ class _ProductsState extends State<Products> {
         ],
       ),
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddProduct()),
+            MaterialPageRoute(builder: (context) => AddProduct()),
           ).then((value) {
             if (value == true) {
               _refresh();
             }
           });
         },
-        child: const Icon(Icons.add, color: Colors.white,),
-        backgroundColor: Color(0xFF470404),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          "Add Product",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color(0xFFad6c47), // FloatingActionButton background color
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -389,6 +393,20 @@ class _ProductsState extends State<Products> {
                                                   )).whenComplete(() {
                                                     _refresh();
                                                     Navigator.pop(context);
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text("Product '${title.text}' updated successfully!"),
+                                                        backgroundColor: const Color(0xFFad6c47),
+                                                      ),
+                                                    );
+                                                  }).catchError((error) {
+                                                    // Show error snackbar if the update fails
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text("Failed to update product: $error"),
+                                                        backgroundColor: Colors.red,
+                                                      ),
+                                                    );
                                                   });
                                                 },
                                                 child: const Text(
@@ -487,6 +505,27 @@ class _ProductsState extends State<Products> {
                                             onPressed: () {
                                               db.deleteProduct(items[index].noteId!).whenComplete(() {
                                                 _refresh();
+
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "Product '${items[index].noteTitle}' deleted successfully!",
+                                                      style: const TextStyle(color: Colors.white), // White text for better contrast
+                                                    ),
+                                                    backgroundColor: Colors.red, // Red background to indicate success in destructive action
+                                                  ),
+                                                );
+                                              }).catchError((error) {
+                                                // Show error snackbar if deletion fails
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "Failed to delete product: $error",
+                                                      style: const TextStyle(color: Colors.white), // White text for better contrast
+                                                    ),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
                                               });
                                               Navigator.of(context).pop();
                                             },
