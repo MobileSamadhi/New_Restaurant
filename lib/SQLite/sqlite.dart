@@ -14,7 +14,7 @@ class DatabaseHelper {
   //Now we must create our user table into our sqlite db
 
   String users =
-      "create table users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrPassword TEXT)";
+      "create table users (usrId INTEGER PRIMARY KEY AUTOINCREMENT, usrName TEXT UNIQUE, usrPassword TEXT, usrPhone TEXT)";
 
   String salesTable =
       "CREATE TABLE sales (id INTEGER PRIMARY KEY AUTOINCREMENT, product_name TEXT NOT NULL, total_quantity INTEGER NOT NULL, total_sales REAL NOT NULL, date TEXT NOT NULL)";
@@ -96,11 +96,44 @@ class DatabaseHelper {
   }
 
   //Sign up
-  Future<int> signup(Users user) async {
+  // Updated Sign up method
+  Future<int?> signup(Users user) async {
     final Database db = await initDB();
 
-    return db.insert('users', user.toMap());
+    // Check if the user already exists
+    bool userExists = await doesUserExist(user.usrName);
+
+    if (userExists) {
+      return null; // Return null if the user already exists
+    } else {
+      return db.insert('users', user.toMap());
+    }
   }
+
+
+  // Check if username already exists
+  Future<bool> doesUserExist(String username) async {
+    final Database db = await initDB();
+    List<Map<String, dynamic>> result = await db.query(
+      'users',
+      where: 'usrName = ?',
+      whereArgs: [username],
+    );
+
+    return result.isNotEmpty; // Returns true if user exists
+  }
+
+  Future<bool> doesPhoneExist(String phone) async {
+    final Database db = await initDB();
+    final result = await db.query(
+      'users',
+      where: 'usrPhone = ?',
+      whereArgs: [phone],
+    );
+    return result.isNotEmpty; // Returns true if a phone number already exists
+  }
+
+
 
   // Method to fetch all users
   Future<List<Users>> getAllUsers() async {

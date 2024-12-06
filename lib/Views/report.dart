@@ -74,7 +74,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
   @override
   void initState() {
     super.initState();
-    startDateController = TextEditingController();
+    startDateController = TextEditingController(text: DateFormat('yyyy-MM-dd').format(DateTime.now()),);
     endDateController = TextEditingController();
     connectToPrinter();
     _loadCompanyDetails();
@@ -337,34 +337,78 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               children: [
                 Text(
                   'Start Date (YYYY-MM-DD)',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF470404),
+                  ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 8),
                 TextField(
                   controller: startDateController,
                   readOnly: true,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
                   decoration: InputDecoration(
+                    hintText: 'Select a start date',
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    ),
                     suffixIcon: IconButton(
                       onPressed: () => _selectStartDate(context),
                       icon: Icon(Icons.calendar_today),
-                      color: Color(0xFFad6c47), // Change calendar icon color
+                      color: Color(0xFFad6c47),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFad6c47), width: 2),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404), width: 2),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
                   'End Date (YYYY-MM-DD)',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16, // Increased font size for better readability
+                    color: Color(0xFF470404), // Darker color for text
+                  ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 8),
                 TextField(
                   controller: endDateController,
                   readOnly: true,
+                  style: TextStyle(
+                    fontSize: 16, // Adjusted text size
+                    color: Colors.black87, // Text color for input
+                  ),
                   decoration: InputDecoration(
+                    hintText: 'Select an end date',
+                    hintStyle: TextStyle(
+                      color: Colors.white, // Placeholder text color
+                    ),
                     suffixIcon: IconButton(
                       onPressed: () => _selectEndDate(context),
                       icon: Icon(Icons.calendar_today),
-                      color: Color(0xFFad6c47), // Change calendar icon color
+                      color: Color(0xFFad6c47), // Changed calendar icon color
+                    ),
+                    filled: true,
+                    fillColor: Colors.white, // Background color for the field
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFad6c47), width: 2), // Border when not focused
+                      borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF470404), width: 2), // Border when focused
+                      borderRadius: BorderRadius.circular(8.0), // Rounded corners
                     ),
                   ),
                 ),
@@ -461,20 +505,25 @@ class SalesSummaryTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mergedItems = mergeCartItems(cartItems);
+    final totalAmount = mergedItems.fold<double>(
+        0, (sum, item) => sum + (item['totalPrice'] as double));
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
+            headingRowColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.grey.shade300), // Header row color
             columns: [
-              DataColumn(label: Text('No.')),
-              DataColumn(label: Text('Product Name')),
-              DataColumn(label: Text('Quantity')),
-              DataColumn(label: Text('Price')),
-              DataColumn(label: Text('Total Price')),
-              DataColumn(label: Text('Date')),
-              DataColumn(label: Text('Time')),
+              DataColumn(label: Text('No.', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Product Name', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Total Price', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Time', style: TextStyle(fontWeight: FontWeight.bold))),
             ],
             rows: mergedItems.asMap().entries.map((entry) {
               int index = entry.key + 1;
@@ -498,25 +547,40 @@ class SalesSummaryTable extends StatelessWidget {
             }).toList(),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Total Items: ${mergedItems.length}',
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.end,
-              ),
-              Text(
-                'Total Quantity: ${mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}',
-                style: TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.end,
-              ),
-            ],
+        SizedBox(height: 20),
+        Card(
+          color: Colors.grey.shade200,
+          elevation: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Sales Summary',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Total Items: ${mergedItems.length}',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  'Total Quantity: ${mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int))}',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  'Total Amount: ${totalAmount.toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.brown),
+                  textAlign: TextAlign.right,
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 }
+

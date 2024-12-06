@@ -172,7 +172,8 @@ class _BillingPageState extends State<BillingPage> {
                   ],
                 ),
               ),
-              actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              actionsPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               actions: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,6 +236,16 @@ class _BillingPageState extends State<BillingPage> {
                           'discount': discount,
                           'netAmount': netAmount,
                         }); // Insert the product into the SQLite database
+
+                        // Show a snackbar message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                '${product.noteTitle} has been added to the cart!'),
+                            backgroundColor: const Color(0xFF470404),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
                       },
                       child: const Text(
                         'Add to Cart',
@@ -253,6 +264,7 @@ class _BillingPageState extends State<BillingPage> {
       },
     );
   }
+
 
   void updateSummary() {
     setState(() {
@@ -434,7 +446,7 @@ class _BillingPageState extends State<BillingPage> {
 
   Widget buildProductsContainer() {
     return Container(
-      height: 500,
+      height: 1000,
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
