@@ -73,10 +73,26 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 10.0), // Adjust padding as needed
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Powered by Synnex IT Solution 2024',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("lib/assets/sign.png"), // Background image
+            image: AssetImage("lib/assets/bg.jpeg"), // Background image
             fit: BoxFit.cover,
           ),
         ),
@@ -97,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF470404).withOpacity(.2),
+                        color: Colors.white70,
                       ),
                       child: TextFormField(
                         controller: username,
@@ -122,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF470404).withOpacity(.2),
+                        color: Colors.white70,
                       ),
                       child: TextFormField(
                         controller: password,
@@ -159,17 +175,44 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Checkbox(
-                          value: rememberPassword,
-                          onChanged: (value) {
-                            setState(() {
-                              rememberPassword = value!;
-                            });
-                          },
+                        Transform.scale(
+                          scale: 1.5, // Enlarges the checkbox for better visibility
+                          child: Checkbox(
+                            value: rememberPassword,
+                            onChanged: (value) {
+                              setState(() {
+                                rememberPassword = value!;
+                              });
+                            },
+                            checkColor: Colors.white, // Color of the checkmark
+                            activeColor: Colors.blueAccent, // Background color when checked
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0), // Rounded corners
+                            ),
+                            side: const BorderSide(
+                              color: Colors.white70, // Border color when unchecked
+                              width: 2.0,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 10), // Adds spacing between the checkbox and text
                         const Text(
                           "Remember Password",
-                          style: TextStyle(color: Color(0xFF414042)),
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0, // Adds spacing between letters
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 1.0), // Subtle shadow
+                                blurRadius: 2.0,
+                                color: Colors.black45,
+                              ),
+                            ],
+                            decoration: TextDecoration.none, // Keeps the text clean
+                            height: 1.5, // Adjusts line height for spacing
+                          ),
                         ),
                       ],
                     ),
@@ -200,18 +243,52 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         const Text(
                           "Don't have an account?",
-                          style: TextStyle(color: Color(0xFF414042)),
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0, // Adds spacing between letters
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 1.0), // Adds a subtle shadow
+                                blurRadius: 2.0,
+                                color: Colors.black45,
+                              ),
+                            ],
+                          ),
                         ),
                         TextButton(
                           onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SignUp()));
+                              context,
+                              MaterialPageRoute(builder: (context) => const SignUp()),
+                            );
                           },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0), // Adds rounded corners
+                            ),
+                            backgroundColor: Colors.blueAccent.withOpacity(0.2), // Subtle background color
+                          ),
                           child: const Text(
                             "SIGN UP",
-                            style: TextStyle(color: Color(0xFF470404)),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0, // Adds spacing between letters
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(1.0, 1.0), // Adds a subtle shadow
+                                  blurRadius: 3.0,
+                                  color: Colors.black26,
+                                ),
+                              ],
+                              decoration: TextDecoration.underline, // Underlines the text
+                              decorationThickness: 1.5, // Thickness of the underline
+                              decorationColor: Colors.white38, // Color of the underline
+                            ),
                           ),
                         ),
                       ],
@@ -224,15 +301,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const SizedBox(),
                     const SizedBox(height: 20),
                     // Footer Text
-                    const Text(
-                      'Powered by Synnex IT Solution 2024',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF414042),
-                      ),
-                    ),
                   ],
                 ),
               ),

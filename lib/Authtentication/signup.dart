@@ -79,11 +79,14 @@ class _SignUpState extends State<SignUp> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              "lib/assets/sign.png",
-              fit: BoxFit.cover,
-            ),
+
+
+              child: Image.asset(
+                "lib/assets/bg.jpeg",
+                fit: BoxFit.cover,
+              ),
           ),
+
           Center(
             child: SingleChildScrollView(
               child: Form(
@@ -102,7 +105,7 @@ class _SignUpState extends State<SignUp> {
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Color(0xFF470404).withOpacity(.2),
+                          color: Colors.white70,
                         ),
                         child: TextFormField(
                           controller: username,
@@ -133,7 +136,7 @@ class _SignUpState extends State<SignUp> {
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Color(0xFF470404).withOpacity(.2),
+                          color: Colors.white70,
                         ),
                         child: TextFormField(
                           controller: phoneNumber,
@@ -172,7 +175,7 @@ class _SignUpState extends State<SignUp> {
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Color(0xFF470404).withOpacity(.2),
+                          color: Colors.white70,
                         ),
                         child: TextFormField(
                           controller: password,
@@ -223,7 +226,7 @@ class _SignUpState extends State<SignUp> {
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Color(0xFF470404).withOpacity(.2),
+                          color: Colors.white70,
                         ),
                         child: TextFormField(
                           controller: confirmPassword,
@@ -339,13 +342,26 @@ class _SignUpState extends State<SignUp> {
                           const Text(
                             "Already have an account?",
                             style: TextStyle(
-                              color: Color(0xFF414042),
+                              color: Colors.white70,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5, // Adds spacing between letters
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(2.0, 2.0), // Adds a shadow to the text
+                                  blurRadius: 4.0,
+                                  color: Colors.black45,
+                                ),
+                              ],
+                              fontStyle: FontStyle.italic, // Makes the text italic
+                              decoration: TextDecoration.underline, // Adds underline to the text
+                              decorationColor: Colors.white38, // Underline color
+                              decorationThickness: 2, // Underline thickness
                             ),
                           ),
                         ],
                       ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -360,9 +376,22 @@ class _SignUpState extends State<SignUp> {
                             child: const Text(
                               "Login",
                               style: TextStyle(
-                                color: Color(0xFF470404),
-                                fontSize: 18,
+                                color: Colors.white70,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: 2.0, // Adds spacing between letters
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1.0, 1.0), // Adds a subtle shadow
+                                    blurRadius: 3.0,
+                                    color: Colors.black38,
+                                  ),
+                                ],
+                                fontStyle: FontStyle.italic, // Makes the text italic
+                                decoration: TextDecoration.overline, // Adds an overline above the text
+                                decorationColor: Colors.white38, // Sets the color of the overline
+                                decorationThickness: 1.5, // Sets the thickness of the overline
+                                height: 1.5, // Adjusts the line height for better spacing
                               ),
                             ),
                           ),

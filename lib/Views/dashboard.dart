@@ -45,7 +45,15 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
+        children: [
+      Positioned.fill(
+      child: Image.asset(
+        "lib/assets/bg.jpeg", // Replace with your asset path
+        fit: BoxFit.cover,
+      ),
+    ),
+    Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
@@ -59,7 +67,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Company Details',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.business,
                         CompanyDetailsPage(),
                       ),
@@ -67,7 +75,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Product Category',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.category,
                         ProductCategoryPage(),
                       ),
@@ -75,7 +83,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Products',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.shopping_bag,
                         Products(),
                       ),
@@ -83,7 +91,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Cart',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.shopping_cart,
                         BillingPage(),
                       ),
@@ -91,7 +99,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'Report',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.report,
                         SalesSummaryPage(),
                       ),
@@ -99,7 +107,7 @@ class DashboardPage extends StatelessWidget {
                       buildDashboardButton(
                         context,
                         'View',
-                        Color(0xFFad6c47),
+                        Colors.white70,
                         Icons.view_agenda_rounded,
                         BillAndCartViewPage(),
                       ),
@@ -124,6 +132,8 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
+    ],
+      ),
     );
   }
 
@@ -131,7 +141,7 @@ class DashboardPage extends StatelessWidget {
       BuildContext context, String text, Color color, IconData icon, Widget page) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

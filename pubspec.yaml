@@ -86,6 +86,7 @@ flutter:
     - lib/assets/add.jpg
     - lib/assets/logo.jpg
     - lib/assets/logo1.jpg
+    - lib/assets/bg.jpeg
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
