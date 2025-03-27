@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:synnex_mobile/Authtentication/login.dart';
+import 'package:synnex_mobi/Authtentication/login.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

@@ -34,7 +34,8 @@ class PrintBillDBHelper {
             discount REAL,
             netAmount REAL,
             date TEXT,
-            time TEXT
+            time TEXT,
+            user TEXT
           )
         ''');
       },

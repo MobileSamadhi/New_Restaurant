@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:synnex_mobile/Authtentication/login.dart';
+import 'package:synnex_mobi/Authtentication/login.dart';
 import 'Views/SplashScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 

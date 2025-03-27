@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../SQLite/cart_db.dart'; // Ensure you have this import
-import '../SQLite/add_product_db.dart'; // AddProductDb import
+import '../SQLite/cart_db.dart';
+import '../SQLite/add_product_db.dart';
 import '../JsonModels/add_product_model.dart';
 import '../JsonModels/category_model.dart';
 import '../SQLite/sqlite.dart';
@@ -51,7 +51,7 @@ class _BillingPageState extends State<BillingPage> {
     final dbCartHelper = CartDatabaseHelper();
     int latestBillNumber = await dbCartHelper.getLatestBillNumber();
     setState(() {
-      billNumber = (latestBillNumber + 1).toString();
+      billNumber = (latestBillNumber + 1).toString().padLeft(7, '0'); // Format as 0000001
       billId = latestBillNumber + 1;
     });
   }
@@ -87,9 +87,9 @@ class _BillingPageState extends State<BillingPage> {
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15), // Rounded corners
+                borderRadius: BorderRadius.circular(15),
               ),
-              backgroundColor: const Color(0xFFF9F9F9), // Light background color
+              backgroundColor: const Color(0xFFF9F9F9),
               title: Row(
                 children: [
                   Icon(Icons.shopping_cart, color: Color(0xFF470404)),
@@ -99,7 +99,7 @@ class _BillingPageState extends State<BillingPage> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF470404), // Dark primary color
+                      color: Color(0xFF470404),
                     ),
                   ),
                 ],
@@ -112,7 +112,7 @@ class _BillingPageState extends State<BillingPage> {
                       '${product.noteTitle} has been added to the cart.',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Color(0xFF414042), // Neutral text color
+                        color: Color(0xFF414042),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -172,15 +172,14 @@ class _BillingPageState extends State<BillingPage> {
                   ],
                 ),
               ),
-              actionsPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               actions: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey, // Cancel button color
+                        backgroundColor: Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -198,7 +197,7 @@ class _BillingPageState extends State<BillingPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF470404), // Add to Cart button color
+                        backgroundColor: const Color(0xFF470404),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -221,7 +220,7 @@ class _BillingPageState extends State<BillingPage> {
                           }
                         });
                         Navigator.of(context).pop();
-                        updateSummary(); // Update the summary whenever a product is added
+                        updateSummary();
 
                         double grossAmount = product.notePrice * quantity;
                         double netAmount = grossAmount - discount;
@@ -235,13 +234,11 @@ class _BillingPageState extends State<BillingPage> {
                           'grossAmount': grossAmount,
                           'discount': discount,
                           'netAmount': netAmount,
-                        }); // Insert the product into the SQLite database
+                        });
 
-                        // Show a snackbar message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                                '${product.noteTitle} has been added to the cart!'),
+                            content: Text('${product.noteTitle} has been added to the cart!'),
                             backgroundColor: const Color(0xFF470404),
                             duration: const Duration(seconds: 3),
                           ),
@@ -265,11 +262,8 @@ class _BillingPageState extends State<BillingPage> {
     );
   }
 
-
   void updateSummary() {
-    setState(() {
-      // Trigger the UI update to reflect the cart changes
-    });
+    setState(() {});
   }
 
   void handlePayBill(double netAmount) {
@@ -282,19 +276,19 @@ class _BillingPageState extends State<BillingPage> {
           cart: cart,
           discount: discount,
           grossAmount: calculateGrossAmount(cart),
-          user: 'Admin',
+          user: 'Admin', address: '', contactNumber: '',
         ),
       ),
     ).then((value) {
       if (value == true) {
         setState(() {
           _initializeBillNumber();
-          cart.clear(); // Clear the cart
-          discount = 0.0; // Reset discount
-          productSearchController.clear(); // Clear the search field
-          selectedCategory = null; // Reset category selection
-          products = AddProductDb().getProducts(); // Refresh products
-          filteredProducts = []; // Clear filtered products
+          cart.clear();
+          discount = 0.0;
+          productSearchController.clear();
+          selectedCategory = null;
+          products = AddProductDb().getProducts();
+          filteredProducts = [];
         });
         Navigator.pushReplacement(
           context,
@@ -446,7 +440,6 @@ class _BillingPageState extends State<BillingPage> {
 
   Widget buildProductsContainer() {
     return Container(
-      height: 1000,
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -471,7 +464,8 @@ class _BillingPageState extends State<BillingPage> {
           const SizedBox(height: 10),
           buildCategoryDropdown(),
           const SizedBox(height: 10),
-          Expanded(
+          SizedBox(
+            height: 400, // Fixed height for the product list
             child: FutureBuilder<List<AddProductModel>>(
               future: products,
               builder: (context, snapshot) {
@@ -480,26 +474,27 @@ class _BillingPageState extends State<BillingPage> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No products available');
+                  return const Center(child: Text('No products available'));
                 } else {
-                  // Update filteredProducts when data is loaded
                   filteredProducts = snapshot.data!.where((product) {
                     final matchesCategory = selectedCategory == null || selectedCategory == product.noteCategory;
                     final matchesSearch = product.noteTitle.toLowerCase().contains(productSearchController.text.toLowerCase());
                     return matchesCategory && matchesSearch;
                   }).toList();
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: filteredProducts.map((product) {
-                        return GestureDetector(
-                          onTap: () {
-                            addToCart(product);
-                          },
-                          child: buildProductRow(product.noteTitle, product.notePrice.toString(), getProductImagePath(product)),
-                        );
-                      }).toList(),
-                    ),
+
+                  return ListView.builder(
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      return GestureDetector(
+                        onTap: () => addToCart(product),
+                        child: buildProductRow(
+                            product.noteTitle,
+                            product.notePrice.toString(),
+                            getProductImagePath(product)
+                        ),
+                      );
+                    },
                   );
                 }
               },
@@ -523,12 +518,12 @@ class _BillingPageState extends State<BillingPage> {
 
   Widget buildCategoryDropdown() {
     return FutureBuilder<List<CategoryModel>>(
-      future: DatabaseHelper().getCategories(),
+      future: DatabaseHelper().getCategories(activeOnly: true), // Only show active categories
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
-        return DropdownButton<String>(
+        return DropdownButtonFormField<String>(
           hint: const Text("Select Category"),
           value: selectedCategory,
           onChanged: (String? newValue) {
@@ -543,6 +538,10 @@ class _BillingPageState extends State<BillingPage> {
               child: Text(category.categoryName),
             );
           }).toList(),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+          ),
         );
       },
     );
@@ -552,40 +551,58 @@ class _BillingPageState extends State<BillingPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8), // Reduced horizontal padding
         decoration: BoxDecoration(
           color: Color(0xFFDAB3AC),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Product Image
             CircleAvatar(
+              radius: 18, // Slightly smaller image
               backgroundImage: imagePath.startsWith('lib/assets/')
                   ? AssetImage(imagePath)
                   : FileImage(File(imagePath)) as ImageProvider,
             ),
-            const SizedBox(width: 15),
+            const SizedBox(width: 8), // Reduced spacing
+
+            // Product Name
             Expanded(
-              flex: 3,
               child: Text(
                 name,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
+                style: const TextStyle(
+                  fontSize: 15, // Slightly smaller font
+                  color: Color(0xFF470404),
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 6),
-            Expanded(
-              flex: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end, // Aligns price and icon to the right
-                children: [
-                  Text(
-                    '${double.parse(price).toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 16, color: Color(0xFF470404)),
-                  ),
-                  const SizedBox(width: 10), // Spacing between price and icon
-                  const Icon(Icons.shopping_cart, size: 20, color: Color(0xFF470404)), // Cart icon
-                ],
+
+            // Price
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced spacing
+              child: Text(
+                'Rs.${double.parse(price).toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF470404),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            // Cart Icon
+            Container(
+              decoration: BoxDecoration(
+                color: Color(0xFF470404),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              padding: const EdgeInsets.all(5),
+              child: Icon(
+                Icons.shopping_cart,
+                size: 16, // Slightly smaller icon
+                color: Colors.white,
               ),
             ),
           ],
@@ -635,20 +652,24 @@ class _BillingPageState extends State<BillingPage> {
         children: [
           const Text(
             'Billing Summary',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFad6c47)),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFad6c47)
+            ),
           ),
           const SizedBox(height: 10),
           ...cart.map((item) {
             return buildSummaryRow(
               '${item['product'].noteTitle} x${item['quantity']}',
-              '${(item['product'].notePrice * item['quantity']).toStringAsFixed(2)}',
+              'Rs.${(item['product'].notePrice * item['quantity']).toStringAsFixed(2)}',
             );
           }).toList(),
           const SizedBox(height: 10),
           const Divider(),
-          buildSummaryRow('Gross Amount', '${grossAmount.toStringAsFixed(2)}'),
-          buildSummaryRow('Discount', '-${discount.toStringAsFixed(2)}'),
-          buildSummaryRow('Net Amount', '${netAmount.toStringAsFixed(2)}'),
+          buildSummaryRow('Gross Amount', 'Rs.${grossAmount.toStringAsFixed(2)}'),
+          buildSummaryRow('Discount', '-Rs.${discount.toStringAsFixed(2)}'),
+          buildSummaryRow('Net Amount', 'Rs.${netAmount.toStringAsFixed(2)}'),
           const SizedBox(height: 10),
           TextField(
             decoration: InputDecoration(
@@ -662,8 +683,8 @@ class _BillingPageState extends State<BillingPage> {
             keyboardType: TextInputType.number,
             onChanged: (value) {
               setState(() {
-                discount = double.tryParse(value) ?? 0.0; // Handle discount value parsing
-                updateSummary(); // Update the summary whenever discount is updated
+                discount = double.tryParse(value) ?? 0.0;
+                updateSummary();
               });
             },
           ),
@@ -672,12 +693,13 @@ class _BillingPageState extends State<BillingPage> {
             onPressed: () => handlePayBill(netAmount),
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF470404),
-              padding: EdgeInsets.symmetric(horizontal: 120.0),
+              minimumSize: Size(double.infinity, 50),
             ),
             child: const Text(
               'Pay Bill',
               style: TextStyle(
                 color: Colors.white,
+                fontSize: 18,
               ),
             ),
           ),
@@ -693,7 +715,7 @@ class _BillingPageState extends State<BillingPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 16, color: Color(0xFF470404))),
-          Text(value, style: const TextStyle(fontSize: 16, color: Color(0xFF470404))),
+          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF470404))),
         ],
       ),
     );

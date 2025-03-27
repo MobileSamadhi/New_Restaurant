@@ -41,7 +41,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.newrestaurant.cinnamondine"
+    namespace "com.cinnamon_dine_mobi"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -59,7 +59,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.newrestaurant.cinnamondine"
+        applicationId "com.cinnamon_dine_mobi"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()

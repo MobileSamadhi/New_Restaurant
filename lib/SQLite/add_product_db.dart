@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:synnex_mobile/JsonModels/product_model.dart';
+import 'package:synnex_mobi/JsonModels/product_model.dart';
 import '../JsonModels/add_product_model.dart';
 
 class AddProductDb {

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../JsonModels/category_model.dart';
-import '../SQLite/category_db.dart';
 import '../SQLite/sqlite.dart';
 import 'dashboard.dart';
 
 class ProductCategoryPage extends StatefulWidget {
-  ProductCategoryPage({Key? key}) : super(key: key);
+  const ProductCategoryPage({Key? key}) : super(key: key);
 
   @override
   _ProductCategoryPageState createState() => _ProductCategoryPageState();
@@ -14,6 +13,7 @@ class ProductCategoryPage extends StatefulWidget {
 
 class _ProductCategoryPageState extends State<ProductCategoryPage> {
   List<CategoryModel> categories = [];
+  bool showActiveOnly = true;
 
   @override
   void initState() {
@@ -22,15 +22,15 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
   }
 
   void _loadCategories() async {
-    final categoriesFromDb = await DatabaseHelper.instance.getCategories();
+    final categoriesFromDb = await DatabaseHelper.instance.getCategories(activeOnly: showActiveOnly);
     setState(() {
       categories = categoriesFromDb;
     });
   }
 
   void _addCategory(String categoryName) async {
-    if (categories.any((category) => category.categoryName.toLowerCase() == categoryName.toLowerCase())) {
-      // Show an error dialog if the category name already exists
+    if (categories.any((category) =>
+    category.categoryName.toLowerCase() == categoryName.toLowerCase())) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('A category with the name "$categoryName" already exists.'),
@@ -40,16 +40,14 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
       return;
     }
 
-    // Add the new category if it doesn't exist
-    final newCategory = CategoryModel(categoryName: categoryName);
+    final newCategory = CategoryModel(categoryName: categoryName, isActive: true);
     await DatabaseHelper.instance.addCategory(newCategory);
     _loadCategories();
 
-    // Show success feedback
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Category "$categoryName" added successfully.'),
-        backgroundColor:  Color(0xFFad6c47),
+        backgroundColor: const Color(0xFFad6c47),
       ),
     );
   }
@@ -58,29 +56,43 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
     await DatabaseHelper.instance.deleteCategory(categoryId);
     _loadCategories();
 
-    // Show a snackbar to indicate deletion success
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Category deleted successfully.'),
-        backgroundColor: Color(0xFFad6c47),
+        backgroundColor: const Color(0xFFad6c47),
       ),
     );
   }
 
-  void _updateCategory(int categoryId, String categoryName) async {
-    if (categories.any((category) => category.categoryName.toLowerCase() == categoryName.toLowerCase() && category.categoryId != categoryId)) {
+  void _updateCategory(CategoryModel category, String newName) async {
+    if (categories.any((c) =>
+    c.categoryName.toLowerCase() == newName.toLowerCase() &&
+        c.categoryId != category.categoryId)) {
       _showErrorDialog('Category already exists.');
       return;
     }
-    final updatedCategory = CategoryModel(categoryId: categoryId, categoryName: categoryName);
+
+    final updatedCategory = category.copyWith(categoryName: newName);
     await DatabaseHelper.instance.updateCategory(updatedCategory);
     _loadCategories();
 
-    // Show a snackbar to indicate update success
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Category updated successfully!!'),
-        backgroundColor: Color(0xFFad6c47),
+        backgroundColor: const Color(0xFFad6c47),
+      ),
+    );
+  }
+
+  Future<void> _toggleCategoryStatus(CategoryModel category) async {
+    final updatedCategory = category.copyWith(isActive: !category.isActive);
+    await DatabaseHelper.instance.updateCategory(updatedCategory);
+    _loadCategories();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Category ${updatedCategory.isActive ? 'activated' : 'deactivated'}'),
+        backgroundColor: const Color(0xFFad6c47),
       ),
     );
   }
@@ -92,14 +104,14 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
         title: Text(
           "Product Categories",
           style: GoogleFonts.poppins(
-            fontSize: 22, // Adjust the font size as needed
-            fontWeight: FontWeight.bold, // Adjust the font weight as needed
-            color: Color(0xFFE0FFFF), // Adjust the text color as needed
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFFE0FFFF),
           ),
         ),
-        backgroundColor: Color(0xFF470404),
+        backgroundColor: const Color(0xFF470404),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,color: Colors.white,),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -113,9 +125,37 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Text(
+                    'Show Active Only:',
+                    style: GoogleFonts.poppins(fontSize: 16),
+                  ),
+                  const SizedBox(width: 10),
+                  Switch(
+                    value: showActiveOnly,
+                    onChanged: (value) {
+                      setState(() {
+                        showActiveOnly = value;
+                        _loadCategories();
+                      });
+                    },
+                    activeColor: const Color(0xFF470404),
+                  ),
+                  const Spacer(),
+                  Chip(
+                    backgroundColor: const Color(0xFF470404),
+                    label: Text(
+                      '${categories.length} ${categories.length == 1 ? 'Category' : 'Categories'}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: categories.length,
@@ -137,17 +177,32 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
                       _deleteCategory(category.categoryId!);
                     },
                     child: Card(
-                      color: Color(0xFFDAB3AC),
+                      color: category.isActive
+                          ? const Color(0xFFDAB3AC)
+                          : Colors.grey[300],
                       elevation: 5,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
                         title: Text(
                           category.categoryName,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: category.isActive ? Colors.black : Colors.grey[700],
+                          ),
+                        ),
+                        leading: IconButton(
+                          icon: Icon(
+                            category.isActive ? Icons.toggle_on : Icons.toggle_off,
+                            color: category.isActive ? Colors.green : Colors.red,
+                            size: 30,
+                          ),
+                          onPressed: () => _toggleCategoryStatus(category),
                         ),
                         trailing: const Icon(Icons.edit, color: Color(0xFF470404)),
                         onTap: () {
@@ -163,280 +218,217 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddDialog();
-        },
-        backgroundColor: Color(0xFF470404),
-        child: const Icon(Icons.add, color: Colors.white,),
+        onPressed: _showAddDialog,
+        backgroundColor: const Color(0xFF470404),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
   void _showAddDialog() {
-    // Ensure dialog uses correct context
+    final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
-        String newCategory = '';
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Rounded corners for the dialog
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)),
+        title: const Text(
+          'Add Category',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFad6c47),
           ),
-          backgroundColor: const Color(0xFFF5F5F5), // Light gray background for the dialog
-          title: const Text(
-            'Add Category',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFad6c47), // Blue color for the title
+        ),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Enter category name',
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFad6c47)),
             ),
           ),
-          content: TextField(
-            onChanged: (value) => newCategory = value,
-            decoration: InputDecoration(
-              hintText: 'Enter category name',
-              hintStyle: const TextStyle(color: Color(0xFF757575)), // Subtle gray hint text
-              filled: true,
-              fillColor: Colors.white, // White background for the input
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8), // Rounded input field corners
-                borderSide: const BorderSide(color: Color(0xFFBDBDBD)), // Light gray border
-              ),
-              focusedBorder: OutlineInputBorder(
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFB0BEC5),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFad6c47)), // Blue border when focused
               ),
+            ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white),
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFB0BEC5), // Neutral gray button background
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners for the button
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontSize: 16,
-                ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFad6c47),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFad6c47), // Blue button background
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners for the button
-                ),
-              ),
-              onPressed: () {
-                if (newCategory.isNotEmpty) {
-                  _addCategory(newCategory); // Use the main `context` for `_addCategory`
-                }
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontSize: 16,
-                ),
-              ),
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                _addCategory(controller.text.trim());
+              }
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Add',
+              style: TextStyle(color: Colors.white),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 
   void _showEditDialog(CategoryModel category) {
+    final controller = TextEditingController(text: category.categoryName);
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        String editedCategory = category.categoryName;
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Rounded corners for the dialog
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)),
+        title: const Text(
+          'Edit Category',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFad6c47),
           ),
-          backgroundColor: const Color(0xFFF5F5F5), // Light gray background for the dialog
-          title: const Text(
-            'Edit Category',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFad6c47), // Blue color for the title
+        ),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: 'Category Name',
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFBDBDBD)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFad6c47)),
             ),
           ),
-          content: TextField(
-            onChanged: (value) => editedCategory = value,
-            decoration: InputDecoration(
-              hintText: 'Enter new category name',
-              labelText: category.categoryName,
-              labelStyle: const TextStyle(
-                color: Color(0xFFad6c47), // Blue color for label text
-                fontWeight: FontWeight.bold,
-              ),
-              hintStyle: const TextStyle(color: Color(0xFF757575)), // Subtle gray hint text
-              filled: true,
-              fillColor: Colors.white, // White background for the input
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8), // Rounded input field corners
-                borderSide: const BorderSide(color: Color(0xFFBDBDBD)), // Light gray border
-              ),
-              focusedBorder: OutlineInputBorder(
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFB0BEC5),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFad6c47)), // Blue border when focused
               ),
+            ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white),
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFB0BEC5), // Neutral gray button background
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners for the button
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontSize: 16,
-                ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFad6c47),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFad6c47), // Blue button background
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded corners for the button
-                ),
-              ),
-              onPressed: () {
-                if (editedCategory.isNotEmpty) {
-                  _updateCategory(category.categoryId!, editedCategory);
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Save',
-                style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontSize: 16,
-                ),
-              ),
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                _updateCategory(category, controller.text.trim());
+              }
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.white),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
-
 
   Future<bool?> _showDeleteConfirmationDialog(int categoryId) {
     return showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Rounded corners for the dialog
-          ),
-          backgroundColor: const Color(0xFFF7F7F7), // Light background color for the dialog
-          title: Row(
-            children: [
-              Icon(Icons.warning, color: Colors.red),
-              SizedBox(width: 8),
-              const Text(
-                'Confirm Delete',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          content: const Text(
-            'Are you sure you want to delete this category?',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
-          ),
-          actionsPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                backgroundColor: const Color(0xFFE0E0E0), // Gray button background
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.black87, // Dark text color
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                backgroundColor: Colors.red, // Red button background for "Delete"
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  color: Colors.white, // White text color
-                  fontSize: 16,
-                ),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15)),
+        backgroundColor: const Color(0xFFF7F7F7),
+        title: Row(
+          children: const [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text(
+              'Confirm Delete',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
-        );
-      },
+        ),
+        content: const Text(
+          'Are you sure you want to delete this category?',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFE0E0E0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
-
 
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 }

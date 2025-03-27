@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:synnex_mobile/Views/dashboard.dart';
+import 'package:synnex_mobi/Views/dashboard.dart';
 import '../SQLite/print_bill_db.dart';
 
 class BillAndCartViewPage extends StatefulWidget {
@@ -120,6 +120,8 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
                       itemCount: billDetails.length,
                       itemBuilder: (context, index) {
                         final product = billDetails[index];
+                        final totalPrice = (product['price'] as double) * (product['quantity'] as int);
+
                         return Card(
                           color: Color(0xFFDAB3AC),
                           margin: EdgeInsets.all(10),
@@ -136,6 +138,9 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
                                     Text('Price: ${(product['price']).toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)),
                                   ],
                                 ),
+                                SizedBox(height: 5),
+                                Text('Total: ${totalPrice.toStringAsFixed(2)}',
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                                 SizedBox(height: 5),
                               ],
                             ),

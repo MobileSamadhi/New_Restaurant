@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:synnex_mobile/JsonModels/product_model.dart';
-import 'package:synnex_mobile/SQLite/add_product_db.dart';
-import 'package:synnex_mobile/Views/add_product.dart';
-import 'package:synnex_mobile/Views/product_category.dart';
+import 'package:synnex_mobi/JsonModels/product_model.dart';
+import 'package:synnex_mobi/SQLite/add_product_db.dart';
+import 'package:synnex_mobi/Views/add_product.dart';
+import 'package:synnex_mobi/Views/product_category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../JsonModels/add_product_model.dart';

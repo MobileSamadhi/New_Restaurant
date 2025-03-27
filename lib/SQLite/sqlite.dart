@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:synnex_mobile/JsonModels/product_model.dart';
-import 'package:synnex_mobile/JsonModels/users.dart';
+import 'package:synnex_mobi/JsonModels/product_model.dart';
+import 'package:synnex_mobi/JsonModels/users.dart';
 import '../JsonModels/category_model.dart';
 import '../JsonModels/sales_model.dart';
 
@@ -112,8 +112,27 @@ class DatabaseHelper {
     }
   }
 
+  Future<String?> getCurrentUser() async {
+    final Database db = await initDB();
+    var result = await db.rawQuery(
+        "SELECT usrName FROM users WHERE isLoggedIn = 1 LIMIT 1"
+    );
+    if (result.isNotEmpty) {
+      return result.first['usrName'] as String?;
+    }
+    return null;
+  }
 
 
+  Future<void> setUserLoggedIn(String username, bool isLoggedIn) async {
+    final Database db = await initDB();
+    await db.update(
+      'users',
+      {'isLoggedIn': isLoggedIn ? 1 : 0},
+      where: 'usrName = ?',
+      whereArgs: [username],
+    );
+  }
 
   Future<bool> doesUserExist(String username) async {
     final Database db = await initDB();
@@ -255,7 +274,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $_categoryTable (
         categoryId INTEGER PRIMARY KEY AUTOINCREMENT,
-        categoryName TEXT
+        categoryName TEXT,
+        isActive INTEGER DEFAULT 1
       )
     ''');
   }
@@ -265,26 +285,26 @@ class DatabaseHelper {
     return await db.insert(_categoryTable, category.toMap());
   }
 
-  Future<List<CategoryModel>> getCategories() async {
-    Database db = await instance.database;
-    List<Map<String, dynamic>> maps = await db.query(_categoryTable);
-    return List.generate(maps.length, (i) {
-      return CategoryModel(
-        categoryId: maps[i]['categoryId'],
-        categoryName: maps[i]['categoryName'],
-      );
-    });
-  }
-
-  Future<int> updateCategory(CategoryModel category) async {
-    Database db = await instance.database;
-    return await db.update(
-      _categoryTable,
-      category.toMap(),
-      where: 'categoryId = ?',
-      whereArgs: [category.categoryId],
-    );
-  }
+  // Future<List<CategoryModel>> getCategories() async {
+  //   Database db = await instance.database;
+  //   List<Map<String, dynamic>> maps = await db.query(_categoryTable);
+  //   return List.generate(maps.length, (i) {
+  //     return CategoryModel(
+  //       categoryId: maps[i]['categoryId'],
+  //       categoryName: maps[i]['categoryName'],
+  //     );
+  //   });
+  // }
+  //
+  // Future<int> updateCategory(CategoryModel category) async {
+  //   Database db = await instance.database;
+  //   return await db.update(
+  //     _categoryTable,
+  //     category.toMap(),
+  //     where: 'categoryId = ?',
+  //     whereArgs: [category.categoryId],
+  //   );
+  // }
 
   Future<int> deleteCategory(int categoryId) async {
     Database db = await instance.database;
@@ -295,6 +315,34 @@ class DatabaseHelper {
     );
   }
 
+  // Add this method to get categories with status filter
+  Future<List<CategoryModel>> getCategories({bool? activeOnly}) async {
+    Database db = await instance.database;
 
+    List<Map<String, dynamic>> maps;
+    if (activeOnly == true) {
+      maps = await db.query(
+        _categoryTable,
+        where: 'isActive = ?',
+        whereArgs: [1],
+      );
+    } else {
+      maps = await db.query(_categoryTable);
+    }
 
+    return List.generate(maps.length, (i) {
+      return CategoryModel.fromMap(maps[i]);
+    });
+  }
+
+// Update your update method to handle status
+  Future<int> updateCategory(CategoryModel category) async {
+    Database db = await instance.database;
+    return await db.update(
+      _categoryTable,
+      category.toMap(),
+      where: 'categoryId = ?',
+      whereArgs: [category.categoryId],
+    );
+  }
 }
