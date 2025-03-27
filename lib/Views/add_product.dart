@@ -13,7 +13,9 @@ import '../SQLite/category_db.dart';
 import 'dart:io';
 
 class AddProduct extends StatefulWidget {
-  const AddProduct({Key? key}) : super(key: key);
+  final AddProductModel? productToEdit;
+
+  const AddProduct({Key? key, this.productToEdit}) : super(key: key);
 
   @override
   State<AddProduct> createState() => _AddProductState();
@@ -31,11 +33,22 @@ class _AddProductState extends State<AddProduct> {
   String selectedCategory = '';
   List<CategoryModel> categories = [];
   File? _image;
+  bool isEditing = false;
 
   @override
   void initState() {
     super.initState();
     fetchActiveCategories();
+
+    if (widget.productToEdit != null) {
+      isEditing = true;
+      title.text = widget.productToEdit!.noteTitle;
+      price.text = widget.productToEdit!.notePrice.toString();
+      selectedCategory = widget.productToEdit!.noteCategory;
+      if (widget.productToEdit!.noteImage != null && widget.productToEdit!.noteImage!.isNotEmpty) {
+        _image = File(widget.productToEdit!.noteImage!);
+      }
+    }
   }
 
   @override
@@ -50,7 +63,7 @@ class _AddProductState extends State<AddProduct> {
     categories = await DatabaseHelper().getCategories(activeOnly: true);
     if (categories.isNotEmpty) {
       setState(() {
-        selectedCategory = categories[0].categoryName;
+        selectedCategory = widget.productToEdit?.noteCategory ?? categories[0].categoryName;
       });
     }
   }
@@ -94,7 +107,7 @@ class _AddProductState extends State<AddProduct> {
         appBar: AppBar(
           backgroundColor: const Color(0xFF470404),
           title: Text(
-            "Add Products",
+            isEditing ? "Edit Product" : "Add Products",
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -192,12 +205,12 @@ class _AddProductState extends State<AddProduct> {
                         shadowColor: const Color(0xFF470404).withOpacity(0.3),
                       ),
                       child: Text(
-                        'ADD PRODUCT',
+                        isEditing ? 'UPDATE PRODUCT' : 'ADD PRODUCT',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
-                           color: Colors.white,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -377,7 +390,7 @@ class _AddProductState extends State<AddProduct> {
               const Icon(Icons.cloud_upload, color: Colors.white),
               const SizedBox(width: 10),
               Text(
-                'Upload Product Image',
+                _image == null ? 'Upload Product Image' : 'Change Image',
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   color: Colors.white,
@@ -447,57 +460,92 @@ class _AddProductState extends State<AddProduct> {
 
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
-      FocusScope.of(context).unfocus(); // Close keyboard
+      FocusScope.of(context).unfocus();
 
       try {
-        final product = AddProductModel(
-          noteTitle: title.text,
-          noteContent: '',
-          notePrice: double.parse(price.text),
-          noteCategory: selectedCategory,
-          noteImage: _image?.path ?? '',
-          availableStock: 0,
-          date: DateTime.now().toIso8601String(),
-          noteStock: 0,
-          saleStock: 0,
-          time: TimeOfDay.now().format(context),
-        );
+        if (isEditing && widget.productToEdit != null) {
+          // Update existing product
+          final updatedProduct = AddProductModel(
+            noteId: widget.productToEdit!.noteId,
+            noteTitle: title.text,
+            noteContent: widget.productToEdit!.noteContent,
+            notePrice: double.parse(price.text),
+            noteCategory: selectedCategory,
+            noteImage: _image?.path ?? widget.productToEdit!.noteImage,
+            availableStock: widget.productToEdit!.availableStock,
+            date: widget.productToEdit!.date,
+            noteStock: widget.productToEdit!.noteStock,
+            saleStock: widget.productToEdit!.saleStock,
+            time: widget.productToEdit!.time,
+          );
 
-        final note = NoteModel(
-          noteTitle: title.text,
-          noteContent: '',
-          notePrice: double.parse(price.text),
-          createdAt: DateTime.now().toIso8601String(),
-          noteCategory: selectedCategory,
-          noteImage: _image?.path ?? '',
-        );
+          await database.updateProduct(updatedProduct);
 
-        await Future.wait([
-          database.insertProduct(product),
-          db.createNote(note),
-        ]);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${title.text} added successfully!',
-              style: GoogleFonts.poppins(),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${title.text} updated successfully!',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: const Color(0xFF4CAF50),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              duration: const Duration(seconds: 2),
             ),
-            backgroundColor: const Color(0xFF4CAF50),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+          );
+        } else {
+          // Add new product
+          final product = AddProductModel(
+            noteTitle: title.text,
+            noteContent: '',
+            notePrice: double.parse(price.text),
+            noteCategory: selectedCategory,
+            noteImage: _image?.path ?? '',
+            availableStock: 0,
+            date: DateTime.now().toIso8601String(),
+            noteStock: 0,
+            saleStock: 0,
+            time: TimeOfDay.now().format(context),
+          );
+
+          final note = NoteModel(
+            noteTitle: title.text,
+            noteContent: '',
+            notePrice: double.parse(price.text),
+            createdAt: DateTime.now().toIso8601String(),
+            noteCategory: selectedCategory,
+            noteImage: _image?.path ?? '',
+          );
+
+          await Future.wait([
+            database.insertProduct(product),
+            db.createNote(note),
+          ]);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${title.text} added successfully!',
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: const Color(0xFF4CAF50),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              duration: const Duration(seconds: 2),
             ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+          );
+        }
 
         Navigator.of(context).pop(true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to add product: ${e.toString()}',
+              'Failed to ${isEditing ? 'update' : 'add'} product: ${e.toString()}',
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.redAccent,

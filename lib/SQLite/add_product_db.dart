@@ -36,7 +36,7 @@ class AddProductDb {
               "noteStock INTEGER,"
               "saleStock INTEGER,"
               "availableStock INTEGER,"
-              "noteImage TEXT "
+              "noteImage TEXT"
               ")",
         );
       },
@@ -48,7 +48,6 @@ class AddProductDb {
     return await db.insert('products', product.toMap());
   }
 
-  // Method to search products by keyword
   Future<List<AddProductModel>> searchProducts(String keyword) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -56,7 +55,6 @@ class AddProductDb {
       where: 'noteTitle LIKE ?',
       whereArgs: ['%$keyword%'],
     );
-
     return List.generate(maps.length, (i) {
       return AddProductModel.fromMap(maps[i]);
     });
@@ -65,7 +63,6 @@ class AddProductDb {
   Future<List<AddProductModel>> getProducts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('products');
-
     return List.generate(maps.length, (i) {
       return AddProductModel.fromMap(maps[i]);
     });
@@ -90,7 +87,6 @@ class AddProductDb {
     );
   }
 
-  // Method to get products by category
   Future<List<AddProductModel>> getProductsByCategory(String category) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -98,13 +94,32 @@ class AddProductDb {
       where: 'noteCategory = ?',
       whereArgs: [category],
     );
-
     return List.generate(maps.length, (i) {
       return AddProductModel.fromMap(maps[i]);
     });
   }
 
+  // New method to update product image
+  Future<int> updateProductImage(int productId, String imagePath) async {
+    final db = await database;
+    return await db.rawUpdate(
+      'UPDATE products SET noteImage = ? WHERE noteId = ?',
+      [imagePath, productId],
+    );
+  }
 
-
+  // New method to get a single product by ID
+  Future<AddProductModel?> getProductById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'products',
+      where: 'noteId = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return AddProductModel.fromMap(maps.first);
+    }
+    return null;
+  }
 }
-
