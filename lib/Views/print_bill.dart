@@ -103,41 +103,52 @@ class _PrintBillPageState extends State<PrintBillPage> {
     });
 
     try {
-      String centerText(String text, {int lineLength = 42}) {
-        if (text.length >= lineLength) return text;
-        int padding = (lineLength - text.length) ~/ 2;
-        return (' ' * padding) + text + (' ' * padding);
+      String addCenterMargin(String text, {int totalWidth = 42}) {
+        int padding = (totalWidth - text.length) ~/ 2;
+        return ' ' * padding + text + ' ' * padding;
+      }
+
+      String addRightMargin(String text, {int totalWidth = 42, int rightMargin = 10}) {
+        int padding = totalWidth - text.length - rightMargin;
+        return text.padRight(totalWidth - rightMargin);
       }
 
       String leftRightAlign(String left, String right, {int lineLength = 42}) {
         int space = lineLength - left.length - right.length;
-        if (space <= 0) return '$left$right';
+        if (space <= 0) return '$left$right'; // No space if line is full
         return left + (' ' * space) + right;
       }
 
       if (company == null) return;
 
-      // Print header
-      bluetooth.printCustom(centerText(company!.companyName.toUpperCase()), 2, 1);
+      bluetooth.printCustom(company!.companyName, 3, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom(company!.address, 1, 1);
-      bluetooth.printCustom('Tel: ${company!.phone}', 1, 1);
+      bluetooth.printCustom(company!.phone, 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(centerText('INVOICE'), 2, 1);
+      bluetooth.printCustom('INVOICE', 2, 1);
       bluetooth.printNewLine();
 
       // Print invoice info
-      bluetooth.printCustom(leftRightAlign('Invoice No :', widget.billNumber), 1, 0);
-      bluetooth.printCustom(leftRightAlign('Date :', DateFormat('yyyy-MM-dd').format(widget.dateTime)), 1, 0);
-      bluetooth.printCustom(leftRightAlign('Cashier :', currentUser), 1, 0);
+      bluetooth.printCustom(leftRightAlign('Invoice No :', widget.billNumber), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Date :', DateFormat('yyyy-MM-dd').format(widget.dateTime)), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Cashier :', currentUser), 1, 1);
       bluetooth.printNewLine();
 
-      // Print column headers
-      bluetooth.printCustom(leftRightAlign('Item', 'Price    Amount'), 1, 0);
-      bluetooth.printCustom('------------------------------------------', 1, 0);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
-      // Print items
+      bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+
+      final dbHelper = PrintBillDBHelper();
+      final date = DateFormat('yyyy-MM-dd').format(widget.dateTime);
+      final time = DateFormat('HH:mm').format(widget.dateTime);
+
+      int totalItems = 0;
+      int totalQuantity = 0;
+
       for (var i = 0; i < widget.cart.length; i++) {
         var item = widget.cart[i];
         var product = item['product'];
@@ -151,65 +162,10 @@ class _PrintBillPageState extends State<PrintBillPage> {
           price = product.notePrice!;
         }
         var quantity = item['quantity'] as int;
-        var total = price * quantity;
+        var grossAmount = price * quantity;
+        var netAmount = grossAmount - widget.discount;
 
-        // Print item number and name
-        bluetooth.printCustom('${(i + 1).toString().padLeft(2)}.    $name', 1, 0);
-
-        // Print quantity, price, and total
-        String priceLine = '    ${quantity.toString().padLeft(2)}    ${price.toStringAsFixed(2).padLeft(8)}    ${total.toStringAsFixed(2).padLeft(8)}';
-        bluetooth.printCustom(priceLine, 1, 0);
-
-        bluetooth.printNewLine();
-      }
-
-      // Print totals
-      bluetooth.printCustom(leftRightAlign('Gross Total .', widget.grossAmount.toStringAsFixed(2)), 1, 0);
-      bluetooth.printNewLine();
-      bluetooth.printCustom(leftRightAlign('Net Total', widget.netAmount.toStringAsFixed(2)), 1, 0);
-      bluetooth.printNewLine();
-
-      // Print payment method
-      bluetooth.printCustom('CREDYCARD MASTER-XXXX', 1, 0);
-      bluetooth.printCustom(leftRightAlign('', widget.netAmount.toStringAsFixed(2)), 1, 0);
-      bluetooth.printCustom(leftRightAlign('Change', '0.00'), 1, 0);
-      bluetooth.printNewLine();
-
-      // Print item count
-      bluetooth.printCustom(leftRightAlign('Item Count', widget.cart.length.toString()), 1, 0);
-      bluetooth.printNewLine();
-
-      // Print footer
-      bluetooth.printCustom(centerText('Thank You! Come Again!'), 1, 1);
-      bluetooth.printNewLine();
-      bluetooth.printCustom('Pay all your bills via Pay & Go machine at ${company!.companyName}', 1, 0);
-      bluetooth.printCustom('In case of price discrepancy please return the', 1, 0);
-      bluetooth.printCustom('item & bill within 7 days', 1, 0);
-      bluetooth.printNewLine();
-      bluetooth.printCustom(centerText('Software by caspersoft.info'), 1, 1);
-      bluetooth.printNewLine();
-
-      bluetooth.paperCut();
-
-      // Save to database if not already saved
-      if (!_isSaved) {
-        final dbHelper = PrintBillDBHelper();
-        final date = DateFormat('yyyy-MM-dd').format(widget.dateTime);
-        final time = DateFormat('HH:mm').format(widget.dateTime);
-
-        for (var item in widget.cart) {
-          var product = item['product'];
-          String name = '';
-          double price = 0.0;
-          if (product is AddProductModel) {
-            name = product.noteTitle;
-            price = product.notePrice;
-          } else if (product is NoteModel) {
-            name = product.noteTitle;
-            price = product.notePrice!;
-          }
-          var quantity = item['quantity'] as int;
-
+        if (!_isSaved) {
           await dbHelper.insertBill({
             'productId': product.noteId,
             'billId': int.tryParse(widget.billNumber) ?? 0,
@@ -225,17 +181,47 @@ class _PrintBillPageState extends State<PrintBillPage> {
           });
         }
 
-        setState(() {
-          _isSaved = true;
-        });
+        String itemLine = formatLine((i + 1).toString(), name, quantity.toString(), price.toStringAsFixed(2), netAmount.toStringAsFixed(2));
+        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
+
+        totalItems++;
+        totalQuantity += quantity;
       }
+
+      setState(() {
+        _isSaved = true;
+      });
+
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Total Items:", totalItems.toString()), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Total Quantity:", totalQuantity.toString()), totalWidth: 42), 1, 1);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Gross Amount:", widget.grossAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Discount:", widget.discount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Net Amount:", widget.netAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      bluetooth.printNewLine();
+
+      bluetooth.printCustom(addCenterMargin("Thank You, Come Again!", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addCenterMargin("Software provided by", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 1, 1);
+      bluetooth.printNewLine();
+
+      bluetooth.printCustom("", 1, 1);
+      bluetooth.paperCut();
 
     } catch (e) {
       print('Printing error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Printing failed: $e'),
-          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.redAccent,
         ),
       );
     } finally {
