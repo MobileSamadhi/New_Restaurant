@@ -339,6 +339,11 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       final totalQuantity = mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
       final totalSales = mergedItems.fold<double>(0, (sum, item) => sum + (item['totalPrice'] as double));
 
+      // Helper function for right alignment
+      String formatRightAligned(String text, {int totalWidth = 42}) {
+        return text.padLeft(totalWidth);
+      }
+
       // Print header
       bluetooth.printCustom("SALES SUMMARY", 3, 1);
       bluetooth.printNewLine();
@@ -346,7 +351,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       if (company != null) {
         bluetooth.printCustom(company!.companyName, 2, 1);
         bluetooth.printCustom(company!.address, 1, 1);
-        bluetooth.printCustom(company!.phone, 1, 1);
+        bluetooth.printCustom('Tel: ${company!.phone}', 1, 1);
         bluetooth.printNewLine();
       }
 
@@ -356,10 +361,11 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       bluetooth.printCustom("------------------------------------------", 1, 1);
 
       // Print column headers
-      bluetooth.printCustom("No  Name            Qty    Price    Total", 1, 1);
-      bluetooth.printCustom("------------------------------------------", 1, 1);
+      // Print column headers with perfect alignment
+      bluetooth.printCustom("No  Name              Qty     Price      Total", 1, 1);
+      bluetooth.printCustom("----------------------------------------------", 1, 1);
 
-      // Print items
+// Print items with aligned columns
       for (var i = 0; i < mergedItems.length; i++) {
         var item = mergedItems[i];
         String name = item['productName'];
@@ -370,24 +376,27 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
         double price = item['price'];
         double total = item['totalPrice'];
 
-        String line = "${(i + 1).toString().padLeft(2)}  "
-            "${name.padRight(15)}  "
-            "${quantity.toString().padLeft(3)}  "
-            "${"Rs ${price.toStringAsFixed(2)}".padLeft(8)}  "
-            "${"Rs ${total.toStringAsFixed(2)}".padLeft(8)}";
+        // Format each column with fixed width
+        String line =
+            "${(i + 1).toString().padLeft(2)}. " +       // No. (2 digits + dot)
+                "${name.padRight(16)}" +                     // Name (16 chars)
+                "${quantity.toString().padLeft(5)}" +        // Qty (5 chars)
+                "Rs ${price.toStringAsFixed(2).padLeft(8)}" + // Price (8 chars + "Rs ")
+                "Rs ${total.toStringAsFixed(2).padLeft(10)}"; // Total (10 chars + "Rs ")
 
-        bluetooth.printCustom(line, 1, 1);
+        bluetooth.printCustom(line, 1, 0);  // Left-aligned (alignment = 0)
       }
 
       // Print summary
       bluetooth.printCustom("------------------------------------------", 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom("Total Items: ${mergedItems.length}".padLeft(38), 1, 1);
-      bluetooth.printCustom("Total Quantity: $totalQuantity".padLeft(38), 1, 1);
-      bluetooth.printCustom("Total Sales: Rs ${totalSales.toStringAsFixed(2)}".padLeft(38), 1, 1);
+      bluetooth.printCustom(formatRightAligned("Total Items: ${mergedItems.length}"), 1, 1);
+      bluetooth.printCustom(formatRightAligned("Total Quantity: $totalQuantity"), 1, 1);
+      bluetooth.printCustom(formatRightAligned("Total Sales: ${totalSales.toStringAsFixed(2)}"), 1, 1);
       bluetooth.printNewLine();
 
       // Print footer
+      bluetooth.printCustom("------------------------------------------", 1, 1);
       bluetooth.printCustom("Thank You", 1, 1);
       bluetooth.printCustom("Software by Synnex IT Solution", 1, 1);
       bluetooth.printNewLine();
