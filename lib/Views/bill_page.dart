@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -357,7 +358,10 @@ class _BillingPageState extends State<BillingPage> {
                 ),
               ),
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: Icon(
+                  Platform.isIOS ? CupertinoIcons.back : Icons.arrow_back,
+                  color: Colors.white,
+                ),
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,

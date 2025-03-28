@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -115,7 +116,10 @@ class _AddProductState extends State<AddProduct> {
             ),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(
+              Platform.isIOS ? CupertinoIcons.back : Icons.arrow_back,
+              color: Colors.white,
+            ),
             onPressed: () {
               Navigator.pushReplacement(
                 context,

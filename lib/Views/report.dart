@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import '../JsonModels/company_model.dart';
 import '../SQLite/db_helper.dart';
 import 'dashboard.dart';
@@ -223,19 +225,19 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               ],
 
               // Table
-              pw.Table.fromTextArray(
+              pw.TableHelper.fromTextArray(
                 context: context,
                 columnWidths: {
-                  0: const pw.FlexColumnWidth(1),
-                  1: const pw.FlexColumnWidth(3),
-                  2: const pw.FlexColumnWidth(2),
-                  3: const pw.FlexColumnWidth(2),
-                  4: const pw.FlexColumnWidth(2),
+                  0: const pw.FixedColumnWidth(30),  // No.
+                  1: const pw.FixedColumnWidth(150), // Product Name
+                  2: const pw.FixedColumnWidth(50),  // Quantity
+                  3: const pw.FixedColumnWidth(70),  // Price
+                  4: const pw.FixedColumnWidth(80),  // Total
                 },
                 headers: [
                   'No.',
                   'Product Name',
-                  'Quantity',
+                  'Qty',
                   'Price',
                   'Total',
                 ],
@@ -246,49 +248,48 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
                 cellStyle: pw.TextStyle(
                   fontSize: 10,
                 ),
-                data: mergedItems.asMap().entries.map((entry) {
-                  int index = entry.key + 1;
-                  var item = entry.value;
+                cellAlignment: pw.Alignment.centerRight,
+                headerAlignment: pw.Alignment.center,
+                data: List<List<String>>.generate(mergedItems.length, (index) {
+                  var item = mergedItems[index];
                   return [
-                    index.toString(),
+                    (index + 1).toString(),
                     item['productName'].toString(),
                     item['quantity'].toString(),
-                    NumberFormat.currency(symbol: '').format(item['price']),
-                    NumberFormat.currency(symbol: '').format(item['totalPrice']),
+                    NumberFormat.currency(symbol: 'Rs ').format(item['price']),
+                    NumberFormat.currency(symbol: 'Rs ').format(item['totalPrice']),
                   ];
-                }).toList(),
+                }),
               ),
               pw.SizedBox(height: 20),
 
               // Summary
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text(
-                        'Total Items: ${mergedItems.length}',
-                        style: pw.TextStyle(
-                          fontSize: 12,
-                        ),
+              pw.Container(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      'Total Items: ${mergedItems.length}',
+                      style: pw.TextStyle(
+                        fontSize: 12,
                       ),
-                      pw.Text(
-                        'Total Quantity: $totalQuantity',
-                        style: pw.TextStyle(
-                          fontSize: 12,
-                        ),
+                    ),
+                    pw.Text(
+                      'Total Quantity: $totalQuantity',
+                      style: pw.TextStyle(
+                        fontSize: 12,
                       ),
-                      pw.Text(
-                        'Total Sales: ${NumberFormat.currency(symbol: '').format(totalSales)}',
-                        style: pw.TextStyle(
-                          fontSize: 14,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
+                    ),
+                    pw.Text(
+                      'Total Sales: ${NumberFormat.currency(symbol: 'Rs ').format(totalSales)}',
+                      style: pw.TextStyle(
+                        fontSize: 14,
+                        fontWeight: pw.FontWeight.bold,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
               pw.SizedBox(height: 30),
               pw.Center(
@@ -333,40 +334,44 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     });
 
     try {
-      String addCenterMargin(String text, {int totalWidth = 42}) {
-        int padding = (totalWidth - text.length) ~/ 2;
-        return ' ' * padding + text + ' ' * padding;
-      }
-
-      String addRightMargin(String text, {int totalWidth = 42, int rightMargin = 10}) {
-        int padding = totalWidth - text.length - rightMargin;
-        return text.padRight(totalWidth - rightMargin);
-      }
-
       String currentDateTime = DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.now());
       final mergedItems = mergeCartItems(cartItems);
       final totalQuantity = mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
       final totalSales = mergedItems.fold<double>(0, (sum, item) => sum + (item['totalPrice'] as double));
 
+      // Helper functions for alignment
+      String centerText(String text, {int lineLength = 42}) {
+        if (text.length >= lineLength) return text;
+        int padding = (lineLength - text.length) ~/ 2;
+        return (' ' * padding) + text + (' ' * padding);
+      }
+
+      String leftRightAlign(String left, String right, {int lineLength = 42}) {
+        int space = lineLength - left.length - right.length;
+        if (space <= 0) return '$left$right';
+        return left + (' ' * space) + right;
+      }
+
       // Print header
-      bluetooth.printCustom(addCenterMargin("SALES SUMMARY", totalWidth: 42), 3, 1);
+      bluetooth.printCustom(centerText("SALES SUMMARY"), 2, 1);
       bluetooth.printNewLine();
 
       if (company != null) {
-        bluetooth.printCustom(company!.companyName, 2, 1);
+        bluetooth.printCustom(centerText(company!.companyName.toUpperCase()), 2, 1);
+        bluetooth.printNewLine();
         bluetooth.printCustom(company!.address, 1, 1);
-        bluetooth.printCustom(company!.phone, 1, 1);
+        bluetooth.printCustom('Tel: ${company!.phone}', 1, 1);
         bluetooth.printNewLine();
       }
 
-      bluetooth.printCustom(addCenterMargin("Date: $currentDateTime", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addCenterMargin("${startDateController.text} to ${endDateController.text}", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Date :', currentDateTime), 1, 0);
+      bluetooth.printCustom(leftRightAlign('Period :', '${startDateController.text} to ${endDateController.text}'), 1, 0);
       bluetooth.printNewLine();
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      bluetooth.printCustom("------------------------------------------", 1, 1);
 
       // Print column headers
-      bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      bluetooth.printCustom("No  Name            Qty     Price     Total", 1, 1);
+      bluetooth.printCustom("------------------------------------------", 1, 1);
 
       // Print items
       for (var i = 0; i < mergedItems.length; i++) {
@@ -376,28 +381,31 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
         double price = item['price'];
         double total = item['totalPrice'];
 
-        String itemLine = formatLine(
-            (i + 1).toString(),
-            name,
-            quantity.toString(),
-            price.toStringAsFixed(2),
-            total.toStringAsFixed(2)
-        );
-        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
+        // Print item number and name
+        bluetooth.printCustom('${(i + 1).toString().padLeft(2)}.    $name', 1, 0);
+
+        // Print quantity, price, and total
+        String priceLine = '    ${quantity.toString().padLeft(3)}    ${price.toStringAsFixed(2).padLeft(8)}    ${total.toStringAsFixed(2).padLeft(8)}';
+        bluetooth.printCustom(priceLine, 1, 0);
+
+        bluetooth.printNewLine();
       }
 
-      // Print summary
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      // Print summary totals
+      bluetooth.printCustom("------------------------------------------", 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(addRightMargin("Total Items: ${mergedItems.length}", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addRightMargin("Total Quantity: $totalQuantity", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addRightMargin("Total Sales: ${totalSales.toStringAsFixed(2)}", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Total Items:', mergedItems.length.toString()), 1, 0);
+      bluetooth.printCustom(leftRightAlign('Total Quantity:', totalQuantity.toString()), 1, 0);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(leftRightAlign('TOTAL SALES:', 'Rs ${totalSales.toStringAsFixed(2)}'), 1, 0);
+      bluetooth.printNewLine();
+      bluetooth.printCustom("------------------------------------------", 1, 1);
       bluetooth.printNewLine();
 
       // Print footer
-      bluetooth.printCustom(addCenterMargin("Thank You", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addCenterMargin("Software by Synnex IT Solution", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(centerText("Thank You"), 1, 1);
       bluetooth.printNewLine();
+      bluetooth.printCustom(centerText("Software by Synnex IT Solution"), 1, 1);
       bluetooth.printNewLine();
       bluetooth.paperCut();
 
@@ -419,22 +427,6 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
         isPrinting = false;
       });
     }
-  }
-
-  String formatLine(String no, String name, String qty, String price, String total) {
-    const int noWidth = 3;
-    const int nameWidth = 12;
-    const int qtyWidth = 6;
-    const int priceWidth = 9;
-    const int totalWidth = 10;
-
-    String paddedNo = no.padRight(noWidth);
-    String paddedName = (name.length > nameWidth) ? name.substring(0, nameWidth) : name.padRight(nameWidth);
-    String paddedQty = qty.padLeft(qtyWidth);
-    String paddedPrice = price.padLeft(priceWidth);
-    String paddedTotal = total.padLeft(totalWidth);
-
-    return '$paddedNo$paddedName$paddedQty$paddedPrice$paddedTotal';
   }
 
   List<Map<String, dynamic>> mergeCartItems(List<Map<String, dynamic>> items) {
@@ -466,6 +458,15 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     final totalQuantity = mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
     final totalSales = mergedItems.fold<double>(0, (sum, item) => sum + (item['totalPrice'] as double));
 
+    // Prepare data for pie chart
+    final pieChartData = mergedItems.map((item) {
+      return _PieChartData(
+        item['productName'],
+        item['totalPrice'],
+        _getRandomColor(),
+      );
+    }).toList();
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -479,7 +480,10 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
         ),
         backgroundColor: Color(0xFF470404),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Platform.isIOS ? CupertinoIcons.back : Icons.arrow_back,
+            color: Colors.white,
+          ),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -556,7 +560,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16), // Space between the two date fields
+                          SizedBox(height: 16),
                           // End Date Row
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,6 +787,125 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
               ),
               SizedBox(height: 20),
 
+              // Sales Distribution Pie Chart
+              if (mergedItems.isNotEmpty) ...[
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Sales Distribution',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF470404),
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Container(
+                          height: 300,
+                          child: SfCircularChart(
+                            legend: Legend(
+                              isVisible: true,
+                              overflowMode: LegendItemOverflowMode.wrap,
+                              position: LegendPosition.bottom,
+                            ),
+                            series: <CircularSeries>[
+                              PieSeries<_PieChartData, String>(
+                                dataSource: pieChartData,
+                                xValueMapper: (_PieChartData data, _) => data.productName,
+                                yValueMapper: (_PieChartData data, _) => data.totalSales,
+                                pointColorMapper: (_PieChartData data, _) => data.color,
+                                dataLabelSettings: DataLabelSettings(
+                                  isVisible: true,
+                                  labelPosition: ChartDataLabelPosition.outside,
+                                  textStyle: GoogleFonts.poppins(fontSize: 10),
+                                  connectorLineSettings: ConnectorLineSettings(
+                                    length: '10%',
+                                    type: ConnectorType.curve,
+                                  ),
+                                  builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                                    return Text(
+                                      '${data.productName}\nRs ${NumberFormat('#,##0.00').format(data.totalSales)}\n(${(data.totalSales / totalSales * 100).toStringAsFixed(1)}%)',
+                                      style: GoogleFonts.poppins(fontSize: 10),
+                                    );
+                                  },
+                                ),
+                                explode: true,
+                                explodeIndex: 0,
+                                explodeOffset: '10%',
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        // Product legend with separate colors
+                        Column(
+                          children: [
+                            Text(
+                              'Product Breakdown',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF470404),
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ...pieChartData.map((item) => Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 16,
+                                    height: 16,
+                                    decoration: BoxDecoration(
+                                      color: item.color,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.productName,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${(item.totalSales / totalSales * 100).toStringAsFixed(1)}%',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Rs ${NumberFormat('#,##0.00').format(item.totalSales)}',
+                                    style: GoogleFonts.poppins(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            )).toList(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+              ],
               // Sales Table
               if (mergedItems.isNotEmpty) ...[
                 Text(
@@ -834,6 +957,30 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       ),
     );
   }
+
+  Color _getRandomColor() {
+    final colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.amber,
+      Colors.deepPurple,
+      Colors.lightBlue,
+      Colors.lime,
+    ];
+    return colors[(DateTime.now().millisecondsSinceEpoch % colors.length)];
+  }
+}
+
+class _PieChartData {
+  final String productName;
+  final double totalSales;
+  final Color color;
+
+  _PieChartData(this.productName, this.totalSales, this.color);
 }
 
 class SalesSummaryTable extends StatelessWidget {

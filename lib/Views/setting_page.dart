@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:synnex_mobi/SQLite/sqlite.dart';
 import 'package:synnex_mobi/JsonModels/users.dart';
@@ -54,7 +57,10 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: Color(0xFF470404),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Platform.isIOS ? CupertinoIcons.back : Icons.arrow_back,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DashboardPage()),

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -168,7 +170,10 @@ class _CompanyDetailsPageState extends State<CompanyDetailsPage> {
           backgroundColor: Color(0xFF470404),
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(
+              Platform.isIOS ? CupertinoIcons.back : Icons.arrow_back,
+              color: Colors.white,
+            ),
             onPressed: () => Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => DashboardPage()),
