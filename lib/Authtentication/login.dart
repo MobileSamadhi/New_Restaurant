@@ -256,31 +256,46 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    print('[_login] Starting login process');
     setState(() {
       isLoading = true;
     });
+    print('[_login] isLoading set to true');
 
     try {
+      // Normalize username the same way as in signup
+      String normalizedUsername = username.text.trim().toLowerCase();
+      print('[_login] Normalized username: $normalizedUsername');
+      print('[_login] Password: ${password.text}');
+
       var response = await db.login(
         Users(
-          usrName: username.text,
+          usrName: normalizedUsername,  // Use normalized username here
           usrPassword: password.text,
           usrPhone: '',
         ),
       );
+      print('[_login] Received response from db.login: $response');
 
       if (response == true) {
-        if (!mounted) return;
+        print('[_login] Login successful');
+        if (!mounted) {
+          print('[_login] Widget not mounted, returning');
+          return;
+        }
 
-        // Store the logged-in user locally for quick access
+        // Store the normalized username in SharedPreferences
+        print('[_login] Storing user in SharedPreferences');
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('currentUser', username.text);
+        await prefs.setString('currentUser', normalizedUsername);
+        print('[_login] User stored successfully');
 
         // Show success message
+        print('[_login] Showing success snackbar');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Login Successful! Welcome ${username.text}!",
+              "Login Successful! Welcome ${username.text}!", // Show original casing in UI
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: const Color(0xFF470404),
@@ -293,33 +308,42 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         // Navigate to dashboard
+        print('[_login] Waiting 1 second before navigation');
         await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
+          print('[_login] Navigating to DashboardPage');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DashboardPage()),
           );
+        } else {
+          print('[_login] Widget not mounted during navigation attempt');
         }
       } else {
+        print('[_login] Login failed - incorrect credentials');
         _showErrorDialog(
           "Login Failed",
           "The username or password you entered is incorrect.",
         );
       }
     } catch (e) {
+      print('[_login] Error during login: $e');
       _showErrorDialog(
         "Error",
         "An error occurred during login. Please try again.",
       );
     } finally {
       if (mounted) {
+        print('[_login] Setting isLoading to false');
         setState(() {
           isLoading = false;
         });
+      } else {
+        print('[_login] Widget not mounted in finally block');
       }
     }
+    print('[_login] Login process completed');
   }
-
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
