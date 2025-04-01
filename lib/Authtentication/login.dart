@@ -18,8 +18,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final password = TextEditingController();
   bool isVisible = false;
   bool isLoading = false;
+  bool rememberMe = false;
   final db = DatabaseHelper();
   final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedCredentials();
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (rememberMe) {
+        username.text = prefs.getString('rememberedUsername') ?? '';
+        password.text = prefs.getString('rememberedPassword') ?? '';
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +128,57 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
+
+                      // Remember me checkbox and forgot password
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              // Animated toggle switch
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    rememberMe = !rememberMe;
+                                  });
+                                },
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  transitionBuilder: (child, animation) {
+                                    return ScaleTransition(scale: animation, child: child);
+                                  },
+                                  child: rememberMe
+                                      ? Icon(
+                                    Icons.toggle_on,
+                                    key: ValueKey('on'),
+                                    color: Colors.green,
+                                    size: 36,
+                                  )
+                                      : Icon(
+                                    Icons.toggle_off,
+                                    key: ValueKey('off'),
+                                    color: Colors.white.withOpacity(0.7),
+                                    size: 36,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+
+                              // Text
+                              Text(
+                                "Remember me",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
 
                       // Login Button
                       SizedBox(
@@ -268,6 +337,18 @@ class _LoginScreenState extends State<LoginScreen> {
       print('[_login] Normalized username: $normalizedUsername');
       print('[_login] Password: ${password.text}');
 
+      // Save or clear remembered credentials based on user choice
+      final prefs = await SharedPreferences.getInstance();
+      if (rememberMe) {
+        await prefs.setBool('rememberMe', true);
+        await prefs.setString('rememberedUsername', username.text);
+        await prefs.setString('rememberedPassword', password.text);
+      } else {
+        await prefs.setBool('rememberMe', false);
+        await prefs.remove('rememberedUsername');
+        await prefs.remove('rememberedPassword');
+      }
+
       var response = await db.login(
         Users(
           usrName: normalizedUsername,  // Use normalized username here
@@ -286,7 +367,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Store the normalized username in SharedPreferences
         print('[_login] Storing user in SharedPreferences');
-        final prefs = await SharedPreferences.getInstance();
         await prefs.setString('currentUser', normalizedUsername);
         print('[_login] User stored successfully');
 
@@ -344,6 +424,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     print('[_login] Login process completed');
   }
+
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,

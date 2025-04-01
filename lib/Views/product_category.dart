@@ -131,9 +131,10 @@ class _ProductCategoryPageState extends State<ProductCategoryPage> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => DashboardPage()),
+                  (Route<dynamic> route) => false, // This removes all previous routes
             );
           },
         ),
