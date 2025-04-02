@@ -175,6 +175,7 @@ class _PrintBillPageState extends State<PrintBillPage> {
             'price': price,
             'grossAmount': widget.grossAmount,
             'discount': widget.discount,
+            'totalItemDiscount': widget.totalItemDiscounts,
             'netAmount': widget.netAmount,
             'date': date,
             'time': time,

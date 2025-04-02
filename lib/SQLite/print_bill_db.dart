@@ -32,6 +32,7 @@ class PrintBillDBHelper {
             price REAL,
             grossAmount REAL,
             discount REAL,
+            totalItemDiscount REAL,
             netAmount REAL,
             date TEXT,
             time TEXT,
