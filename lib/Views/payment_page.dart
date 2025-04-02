@@ -10,11 +10,12 @@ class PaymentPage extends StatefulWidget {
   final double amount;
   final String billNumber;
   final List<Map<String, dynamic>> cart;
-  final double discount;
+  final double discount; // Changed from discount to billDiscount
   final double grossAmount;
   final String user;
   final String address;
   final String contactNumber;
+  final double totalItemDiscounts; // Added for item-wise discounts
 
   const PaymentPage({
     Key? key,
@@ -26,6 +27,7 @@ class PaymentPage extends StatefulWidget {
     required this.user,
     required this.address,
     required this.contactNumber,
+    required this.totalItemDiscounts,
   }) : super(key: key);
 
   @override
@@ -149,7 +151,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           const SizedBox(height: 16),
                           _buildSummaryRow('Bill Number:', widget.billNumber),
                           _buildSummaryRow('Gross Amount:', 'Rs. ${widget.grossAmount.toStringAsFixed(2)}'),
-                          _buildSummaryRow('Discount:', 'Rs. ${widget.discount.toStringAsFixed(2)}'),
+                          _buildSummaryRow('Total Item Discounts:', '-Rs. ${widget.totalItemDiscounts.toStringAsFixed(2)}'),
+                          _buildSummaryRow('Bill Discount:', '-Rs. ${widget.discount.toStringAsFixed(2)}'),
                           const Divider(height: 24, thickness: 1),
                           _buildSummaryRow(
                             'Total Amount:',
@@ -743,6 +746,7 @@ class _PaymentPageState extends State<PaymentPage> {
           billNumber: widget.billNumber,
           dateTime: DateTime.now(),
           discount: widget.discount,
+          totalItemDiscounts: widget.totalItemDiscounts,
           grossAmount: widget.grossAmount,
           netAmount: widget.amount,
           contactNumber: widget.contactNumber,

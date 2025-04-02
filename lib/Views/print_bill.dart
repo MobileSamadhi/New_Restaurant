@@ -23,6 +23,7 @@ class PrintBillPage extends StatefulWidget {
   final double grossAmount;
   final double discount;
   final double netAmount;
+  final double totalItemDiscounts;
 
   PrintBillPage({
     required this.cart,
@@ -32,7 +33,7 @@ class PrintBillPage extends StatefulWidget {
     required this.contactNumber,
     required this.grossAmount,
     required this.discount,
-    required this.netAmount, required String user,
+    required this.netAmount, required String user, required this.totalItemDiscounts,
   }) {
     print('Received Bill Number: $billNumber');
     print('Received Items: ${cart.map((item) => item.toString()).join(', ')}');
@@ -132,10 +133,10 @@ class _PrintBillPageState extends State<PrintBillPage> {
       // Print invoice info
       bluetooth.printCustom(leftRightAlign('Invoice No :', widget.billNumber), 1, 1);
       bluetooth.printCustom(leftRightAlign('Date :', DateFormat('yyyy-MM-dd').format(widget.dateTime)), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Time :', DateFormat('HH:mm:ss').format(widget.dateTime)), 1, 1);
       bluetooth.printCustom(leftRightAlign('Cashier :', currentUser), 1, 1);
       bluetooth.printNewLine();
 
-      bluetooth.printNewLine();
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
@@ -198,7 +199,8 @@ class _PrintBillPageState extends State<PrintBillPage> {
       bluetooth.printCustom(addRightMargin(formatRightAligned("Total Quantity:", totalQuantity.toString()), totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom(addRightMargin(formatRightAligned("Gross Amount:", widget.grossAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addRightMargin(formatRightAligned("Discount:", widget.discount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Total Item Discount:", widget.totalItemDiscounts.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(formatRightAligned("Bill Discount:", widget.discount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
       bluetooth.printCustom(addRightMargin(formatRightAligned("Net Amount:", widget.netAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
@@ -533,7 +535,8 @@ class _PrintBillPageState extends State<PrintBillPage> {
                             _buildSummaryRow('Total Quantity:', totalQuantity.toString()),
                             Divider(height: 20, thickness: 1),
                             _buildSummaryRow('Gross Amount:', widget.grossAmount.toStringAsFixed(2), isHighlighted: true),
-                            _buildSummaryRow('Discount:', widget.discount.toStringAsFixed(2)),
+                            _buildSummaryRow('Total Item Discount:', widget.totalItemDiscounts.toStringAsFixed(2)),
+                            _buildSummaryRow('Bill Discount:', widget.discount.toStringAsFixed(2)),
                             Divider(height: 20, thickness: 1),
                             _buildSummaryRow('Net Amount:', widget.netAmount.toStringAsFixed(2), isHighlighted: true, isTotal: true),
                           ],
