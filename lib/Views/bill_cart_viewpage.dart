@@ -133,6 +133,7 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
       // Print invoice info
       bluetooth.printCustom(leftRightAlign('Invoice No :', selectedBillId.toString()), 1, 1);
       bluetooth.printCustom(leftRightAlign('Date :', commonBillDetails!['date']), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Time :', commonBillDetails!['time']), 1, 1);
       bluetooth.printNewLine();
 
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
