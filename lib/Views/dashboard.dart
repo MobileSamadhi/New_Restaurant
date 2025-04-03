@@ -143,7 +143,7 @@ class DashboardPage extends StatelessWidget {
                             context,
                             'Cash Refund',
                             Colors.white70,
-                            Icons.view_agenda_rounded,
+                            Icons.money_off_outlined,
                             CashRefundPage(),
                           ),
                           const SizedBox(height: 20),

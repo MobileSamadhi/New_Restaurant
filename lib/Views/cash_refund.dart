@@ -471,36 +471,38 @@ class _CashRefundPageState extends State<CashRefundPage> {
         await _loadCompanyDetails();
       }
 
-      // Print company header
+      // Print company header with larger font
       if (company != null) {
-        _bluetooth.printCustom(company!.companyName, 1, 1);
+        _bluetooth.printCustom(company!.companyName, 2, 1);  // Font size 2 (large)
         _bluetooth.printNewLine();
-        _bluetooth.printCustom(company!.address, 0, 1);
-        _bluetooth.printCustom(company!.phone, 0, 1);
+        _bluetooth.printCustom(company!.address, 1, 1);      // Font size 1 (medium)
+        _bluetooth.printCustom(company!.phone, 1, 1);        // Font size 1 (medium)
         _bluetooth.printNewLine();
       }
 
-      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 1, 1);
+      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 2, 1);  // Font size 2 (large)
       _bluetooth.printNewLine();
 
-      // Print refund info
+      // Print refund info with medium font
       final now = DateTime.now();
-      _bluetooth.printCustom(leftRightAlign('Refund No :', 'REF-${now.millisecondsSinceEpoch}'), 0, 1);
-      _bluetooth.printCustom(leftRightAlign('Date :', DateFormat('yyyy-MM-dd').format(now)), 0, 1);
-      _bluetooth.printCustom(leftRightAlign('Time :', DateFormat('HH:mm:ss').format(now)), 0, 1);
-      _bluetooth.printCustom(leftRightAlign('Cashier :', _currentUser), 0, 1);
+      _bluetooth.printCustom(leftRightAlign('Refund No :', 'REF-${now.millisecondsSinceEpoch}'), 1, 1);
+      _bluetooth.printCustom(leftRightAlign('Date :', DateFormat('yyyy-MM-dd').format(now)), 1, 1);
+      _bluetooth.printCustom(leftRightAlign('Time :', DateFormat('HH:mm:ss').format(now)), 1, 1);
+      _bluetooth.printCustom(leftRightAlign('Cashier :', _currentUser), 1, 1);
       _bluetooth.printNewLine();
 
-      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       _bluetooth.printNewLine();
 
-      _bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 0, 1);
-      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      // Column headers with medium font
+      _bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
+      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
       double totalRefundAmount = 0.0;
       int totalRefundItems = 0;
       int totalRefundQuantity = 0;
 
+      // Items with normal font
       for (var i = 0; i < refundRecords.length; i++) {
         var record = refundRecords[i];
         String name = record['productName'];
@@ -522,22 +524,22 @@ class _CashRefundPageState extends State<CashRefundPage> {
         totalRefundAmount += amount;
       }
 
-      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Items:", totalRefundItems.toString()), totalWidth: 42), 0, 1);
-      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Quantity:", totalRefundQuantity.toString()), totalWidth: 42), 0, 1);
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Refund:", totalRefundAmount.toStringAsFixed(2)), totalWidth: 42), 0, 1);
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       _bluetooth.printNewLine();
 
-      _bluetooth.printCustom(addCenterMargin("Thank You!", totalWidth: 42), 0, 1);
-      if (company != null) {
-        _bluetooth.printCustom(addCenterMargin(company!.companyName, totalWidth: 42), 0, 1);
-      }
-      _bluetooth.printCustom(addCenterMargin("Software provided by", totalWidth: 42), 0, 1);
-      _bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 0, 1);
+      // Summary with medium font
+      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Items:", totalRefundItems.toString()), totalWidth: 42), 1, 1);
+      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Quantity:", totalRefundQuantity.toString()), totalWidth: 42), 1, 1);
+      _bluetooth.printNewLine();
+      _bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Refund:", totalRefundAmount.toStringAsFixed(2)), totalWidth: 42), 1, 1);
+      _bluetooth.printNewLine();
+      _bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
+      _bluetooth.printNewLine();
+
+      // Footer with medium font
+      _bluetooth.printCustom(addCenterMargin("Thank You!", totalWidth: 42), 1, 1);
+      _bluetooth.printCustom(addCenterMargin("Software provided by", totalWidth: 42), 1, 1);
+      _bluetooth.printCustom(addCenterMargin("Synnex IT Solution", totalWidth: 42), 1, 1);
       _bluetooth.printNewLine();
 
       _bluetooth.printCustom("", 0, 1);
