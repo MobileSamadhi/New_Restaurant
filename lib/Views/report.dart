@@ -359,23 +359,23 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       // Print header
       bluetooth.printCustom(company!.companyName, 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(company!.address, 0, 1);
-      bluetooth.printCustom(company!.phone, 0, 1);
+      bluetooth.printCustom(company!.address, 1, 1);
+      bluetooth.printCustom(company!.phone, 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom('SALES SUMMARY REPORT', 1, 1);
+      bluetooth.printCustom('SALES SUMMARY', 1, 1);
       bluetooth.printNewLine();
 
       // Print date range
-      bluetooth.printCustom(leftRightAlign('From:', startDateController.text), 0, 1);
-      bluetooth.printCustom(leftRightAlign('To:', endDateController.text), 0, 1);
-      bluetooth.printCustom(leftRightAlign('Printed:', DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())), 0, 1);
+      bluetooth.printCustom(leftRightAlign('From:', startDateController.text), 1, 1);
+      bluetooth.printCustom(leftRightAlign('To:', endDateController.text), 1, 1);
+      bluetooth.printCustom(leftRightAlign('Printed:', DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())), 1, 1);
       bluetooth.printNewLine();
 
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
       // Print column headers
-      bluetooth.printCustom(addRightMargin("No  Product          Qty     Total", totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
 
       // Print items
@@ -392,25 +392,25 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
             item['quantity'].toString(),
             item['totalPrice'].toStringAsFixed(2)
         );
-        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 0, 1);
+        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
       }
 
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
       // Print summary
-      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Items:", mergedItems.length.toString()), totalWidth: 42), 0, 1);
-      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Quantity:", totalQuantity.toString()), totalWidth: 42), 0, 1);
-      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Sales:", totalSales.toStringAsFixed(2)), totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Items:", mergedItems.length.toString()), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Quantity:", totalQuantity.toString()), totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addRightMargin(_formatRightAligned("Total Sales:", totalSales.toStringAsFixed(2)), totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
       bluetooth.printNewLine();
 
-      bluetooth.printCustom(addCenterMargin("Thank You!", totalWidth: 42), 0, 1);
-      bluetooth.printCustom(addCenterMargin("Software by Synnex IT", totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addCenterMargin("Thank You!", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addCenterMargin("Software by Synnex IT", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
-      bluetooth.printCustom("", 0, 1);
+      bluetooth.printCustom("", 1, 1);
       bluetooth.paperCut();
 
     } catch (e) {
@@ -452,6 +452,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     int spaces = totalWidth - keyLength - valueLength;
     return key + ' ' * spaces + value;
   }
+
   List<Map<String, dynamic>> mergeCartItems(List<Map<String, dynamic>> items) {
     final mergedItems = <String, Map<String, dynamic>>{};
 

@@ -6,8 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synnex_mobi/Views/dashboard.dart';
-import '../JsonModels/company_model.dart';
-import '../SQLite/db_helper.dart';
 import '../SQLite/print_bill_db.dart';
 import '../SQLite/sqlite.dart';
 
@@ -30,8 +28,6 @@ class _CashRefundPageState extends State<CashRefundPage> {
   bool _isProcessing = false;
   bool _isPrinting = false;
   String _currentUser = 'Guest';
-  final DBHelper dbHelper = DBHelper();
-  CompanyModel? company;
 
   static const Color darkRedColor = Color(0xFF470404);
 
@@ -65,13 +61,6 @@ class _CashRefundPageState extends State<CashRefundPage> {
         _currentUser = prefUser;
       });
       return;
-    }
-
-    Future<void> _loadCompanyDetails() async {
-      CompanyModel? fetchedCompany = await dbHelper.getCompany(1);
-      setState(() {
-        company = fetchedCompany;
-      });
     }
 
     // Fallback to database if not in SharedPreferences
@@ -464,15 +453,6 @@ class _CashRefundPageState extends State<CashRefundPage> {
         if (space <= 0) return '$left$right';
         return left + (' ' * space) + right;
       }
-
-      if (company == null) return;
-
-      _bluetooth.printCustom(company!.companyName, 3, 1);
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(company!.address, 1, 1);
-      _bluetooth.printCustom(company!.phone, 1, 1);
-      _bluetooth.printNewLine();
-
 
       _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 1, 1);
       _bluetooth.printNewLine();
