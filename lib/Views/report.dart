@@ -376,24 +376,29 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
 
       // Print column headers
       bluetooth.printCustom(addRightMargin("No  Name          Qty     Price     Total", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 0, 1);
+      bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
 
-      // Print items
-      for (var i = 0; i < mergedItems.length; i++) {
-        var item = mergedItems[i];
-        String name = item['productName'].toString();
-        if (name.length > 12) {
-          name = name.substring(0, 12);
-        }
+    // Print Items
+    for (var i = 0; i < mergedItems.length; i++) {
+    var item = mergedItems[i];
+    String name = item['productName'];
+    if (name.length > 10) {
+    name = name.substring(0, 10) + '...';
+    }
+    int quantity = item['quantity'];
+    double price = item['price'];
+    double total = item['totalPrice'];
 
-        String itemLine = _formatSummaryLine(
-            (i + 1).toString(),
-            name,
-            item['quantity'].toString(),
-            item['totalPrice'].toStringAsFixed(2)
-        );
-        bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
-      }
+    // Format each column
+    String line =
+    "${(i + 1).toString().padRight(3)}" +      // No. (3 chars)
+    "${name.padRight(10)}" +                   // Name (10 chars)
+    "${quantity.toString().padLeft(4)}" +      // Qty (4 chars)
+    "${price.toStringAsFixed(2).padLeft(7)}" + // Price (7 chars)
+    "${total.toStringAsFixed(2).padLeft(9)}";  // Total (9 chars)
+
+    bluetooth.printCustom(addRightMargin(line, totalWidth: 42), 1, 1);
+    }
 
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
