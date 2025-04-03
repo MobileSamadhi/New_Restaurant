@@ -334,72 +334,73 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
     });
 
     try {
-      String currentDateTime = DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.now());
+      String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      String currentTime = DateFormat('hh:mm:ss a').format(DateTime.now());
       final mergedItems = mergeCartItems(cartItems);
       final totalQuantity = mergedItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
       final totalSales = mergedItems.fold<double>(0, (sum, item) => sum + (item['totalPrice'] as double));
 
-      // Print header
-      bluetooth.printCustom("SALES SUMMARY", 3, 1);
+      // Print Header
+      bluetooth.printCustom("synnex it", 2, 1);
+      bluetooth.printCustom("bambalapitiya, colombo", 1, 1);
+      bluetooth.printCustom("Tel: 4253698521", 1, 1);
       bluetooth.printNewLine();
 
-      if (company != null) {
-        bluetooth.printCustom(company!.companyName, 2, 1);
-        bluetooth.printCustom(company!.address, 1, 1);
-        bluetooth.printCustom('Tel: ${company!.phone}', 1, 1);
-        bluetooth.printNewLine();
-      }
+      bluetooth.printCustom("INVOICE", 3, 1);
+      bluetooth.printNewLine();
 
-      bluetooth.printCustom("Date: $currentDateTime", 1, 1);
+      // Print Invoice Details
+      bluetooth.printCustom("Invoice No : 0000001", 1, 0);
+      bluetooth.printCustom("Date       : $currentDate", 1, 0);
+      bluetooth.printCustom("Time       : $currentTime", 1, 0);
       bluetooth.printCustom("${startDateController.text} to ${endDateController.text}", 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom("------------------------------------------", 1, 1);
 
-      // Print column headers with fixed alignment
-      bluetooth.printCustom("No  Name            Qty    Price     Total", 1, 1);
+      // Print Column Headers
+      bluetooth.printCustom("No  Name       Qty   Price   Total", 1, 0);
       bluetooth.printCustom("------------------------------------------", 1, 1);
 
-      // Print items with fixed column widths
+      // Print Items
       for (var i = 0; i < mergedItems.length; i++) {
         var item = mergedItems[i];
         String name = item['productName'];
-        if (name.length > 15) {
-          name = name.substring(0, 15) + '...';
+        if (name.length > 10) {
+          name = name.substring(0, 10) + '...';
         }
         int quantity = item['quantity'];
         double price = item['price'];
         double total = item['totalPrice'];
 
-        // Format each column with fixed width
+        // Format each column
         String line =
-            "${(i + 1).toString().padRight(3)}" +       // No. (3 chars)
-                "${name.padRight(16)}" +                   // Name (16 chars)
-                "${quantity.toString().padLeft(5)}" +       // Qty (5 chars)
-                "Rs${price.toStringAsFixed(2).padLeft(8)}" + // Price (8 chars + "Rs")
-                "Rs${total.toStringAsFixed(2).padLeft(10)}"; // Total (10 chars + "Rs")
+            "${(i + 1).toString().padRight(3)}" +      // No. (3 chars)
+                "${name.padRight(10)}" +                   // Name (10 chars)
+                "${quantity.toString().padLeft(4)}" +      // Qty (4 chars)
+                "${price.toStringAsFixed(2).padLeft(7)}" + // Price (7 chars)
+                "${total.toStringAsFixed(2).padLeft(9)}";  // Total (9 chars)
 
-        bluetooth.printCustom(line, 1, 0);  // Left-aligned
+        bluetooth.printCustom(line, 1, 0);
       }
 
-      // Print summary with left-aligned totals
+      // Print Totals
       bluetooth.printCustom("------------------------------------------", 1, 1);
-      bluetooth.printNewLine();
-      bluetooth.printCustom("Total Items: ${mergedItems.length}", 1, 0);
-      bluetooth.printCustom("Total Quantity: $totalQuantity", 1, 0);
-      bluetooth.printCustom("Total Sales: Rs${totalSales.toStringAsFixed(2)}", 1, 0);
+      bluetooth.printCustom("Total Items     : ${mergedItems.length}", 1, 0);
+      bluetooth.printCustom("Total Quantity  : $totalQuantity", 1, 0);
+      bluetooth.printCustom("Total Sales: Rs: ${totalSales.toStringAsFixed(2)}", 1, 0);
       bluetooth.printNewLine();
 
-      // Print footer
-      bluetooth.printCustom("------------------------------------------", 1, 1);
-      bluetooth.printCustom("Thank You", 1, 1);
-      bluetooth.printCustom("Software by Synnex IT Solution", 1, 1);
+      // Footer
+      bluetooth.printCustom("Thank You, Come Again!", 1, 1);
+      bluetooth.printCustom("Software provided by", 1, 1);
+      bluetooth.printCustom("Synnex IT Solution", 1, 1);
       bluetooth.printNewLine();
       bluetooth.printNewLine();
       bluetooth.paperCut();
 
       ScaffoldMessenger.of(context as BuildContext).showSnackBar(
         SnackBar(
-          content: Text('Report printed successfully'),
+          content: Text('Sales summary printed successfully'),
           backgroundColor: Colors.green,
         ),
       );

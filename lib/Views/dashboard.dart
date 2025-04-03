@@ -11,6 +11,7 @@ import 'package:synnex_mobi/Views/setting_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'bill_cart_viewpage.dart';
 import 'bill_page.dart';
+import 'cash_refund.dart';
 import 'company_details.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -136,6 +137,14 @@ class DashboardPage extends StatelessWidget {
                             Colors.white70,
                             Icons.view_agenda_rounded,
                             BillAndCartViewPage(),
+                          ),
+                          const SizedBox(height: 20),
+                          buildDashboardButton(
+                            context,
+                            'Cash Refund',
+                            Colors.white70,
+                            Icons.view_agenda_rounded,
+                            CashRefundPage(),
                           ),
                           const SizedBox(height: 20),
                           // Logout button using the same style
