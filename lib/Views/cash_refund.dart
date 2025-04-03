@@ -121,69 +121,234 @@ class _CashRefundPageState extends State<CashRefundPage> {
   Future<int?> _showQuantityDialog(Map<String, dynamic> item) async {
     int selectedQuantity = 1;
     final maxQuantity = item['remainingQuantity'] as int;
+    final productName = item['productName'] ?? 'Product';
+    final price = (item['price'] as num).toDouble();
 
     return showDialog<int>(
       context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Select Refund Quantity'),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Product: ${item['productName']}'),
-                  Text('Available: $maxQuantity'),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 4,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Select Refund Quantity',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: darkRedColor,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Product Info Section
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {
-                          if (selectedQuantity > 1) {
-                            setState(() => selectedQuantity--);
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 20),
                       Text(
-                        '$selectedQuantity',
-                        style: const TextStyle(fontSize: 24),
+                        productName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      const SizedBox(width: 20),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          if (selectedQuantity < maxQuantity) {
-                            setState(() => selectedQuantity++);
-                          }
-                        },
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Available: $maxQuantity',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            'Price: RS ${price.toStringAsFixed(2)}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: darkRedColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Amount: RS ${((item['price'] as num).toDouble() * selectedQuantity).toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              );
-            },
+                ),
+                const SizedBox(height: 24),
+
+                // Quantity Selector
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Decrease Button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: selectedQuantity > 1
+                                    ? darkRedColor.withOpacity(0.2)
+                                    : Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.remove,
+                                    color: selectedQuantity > 1
+                                        ? darkRedColor
+                                        : Colors.grey),
+                                onPressed: () {
+                                  if (selectedQuantity > 1) {
+                                    setState(() => selectedQuantity--);
+                                  }
+                                },
+                              ),
+                            ),
+
+                            // Quantity Display
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '$selectedQuantity',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+
+                            // Increase Button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: selectedQuantity < maxQuantity
+                                    ? darkRedColor.withOpacity(0.2)
+                                    : Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.add,
+                                    color: selectedQuantity < maxQuantity
+                                        ? darkRedColor
+                                        : Colors.grey),
+                                onPressed: () {
+                                  if (selectedQuantity < maxQuantity) {
+                                    setState(() => selectedQuantity++);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Amount Display
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: darkRedColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Refund Amount:',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                'RS ${(price * selectedQuantity).toStringAsFixed(2)}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: darkRedColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context, null),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: darkRedColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.poppins(
+                            color: darkRedColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, selectedQuantity),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: darkRedColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: Text(
+                          'Confirm Refund',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, null),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, selectedQuantity),
-              child: const Text('Confirm'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: darkRedColor,
-              ),
-            ),
-          ],
         );
       },
     );
@@ -289,7 +454,7 @@ class _CashRefundPageState extends State<CashRefundPage> {
         return left + (' ' * space) + right;
       }
 
-      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 2, 1);
+      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 1, 1);
       _bluetooth.printNewLine();
 
       // Print refund info

@@ -87,6 +87,7 @@ class _BillingPageState extends State<BillingPage> {
   void addToCart(AddProductModel product) {
     int quantity = 1;
     double itemDiscount = 0.0;
+    final TextEditingController discountController = TextEditingController();
 
     showDialog(
       context: context,
@@ -96,7 +97,7 @@ class _BillingPageState extends State<BillingPage> {
             return Dialog(
               elevation: 0,
               backgroundColor: Colors.transparent,
-              insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -114,23 +115,31 @@ class _BillingPageState extends State<BillingPage> {
                   children: [
                     // Header with close button
                     Container(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Color(0xFF470404),
-                        borderRadius: BorderRadius.vertical(
+                        color: const Color(0xFF470404),
+                        borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(20),
+                        ),
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF470404),
+                            const Color(0xFF470404).withOpacity(0.9),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
                         ),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.shopping_bag_outlined,
+                          const Icon(Icons.shopping_bag_outlined,
                               color: Colors.white,
                               size: 24),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'Add to Order',
-                              style: TextStyle(
+                              style: GoogleFonts.poppins(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -138,9 +147,10 @@ class _BillingPageState extends State<BillingPage> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.close, size: 20),
+                            icon: const Icon(Icons.close, size: 20),
                             color: Colors.white,
                             onPressed: () => Navigator.pop(context),
+                            splashRadius: 20,
                           ),
                         ],
                       ),
@@ -148,37 +158,62 @@ class _BillingPageState extends State<BillingPage> {
 
                     // Content
                     Padding(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Product Info
-                          Text(
-                            product.noteTitle,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(8),
+                                  // Removed imageUrl reference since it's not in AddProductModel
+                                ),
+                                child: const Icon(Icons.image, color: Colors.grey),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product.noteTitle,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Rs.${product.notePrice.toStringAsFixed(2)}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Rs.${product.notePrice.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
                           // Quantity Selector
                           Text('Quantity',
-                              style: TextStyle(
+                              style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.grey.shade600,
                               )),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade300),
@@ -188,51 +223,69 @@ class _BillingPageState extends State<BillingPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.remove),
+                                  icon: const Icon(Icons.remove),
                                   onPressed: () {
                                     if (quantity > 1) {
                                       setState(() => quantity--);
                                     }
                                   },
-                                  color: quantity > 1 ? Color(0xFF470404) : Colors.grey,
+                                  color: quantity > 1 ? const Color(0xFF470404) : Colors.grey,
+                                  splashRadius: 20,
                                 ),
                                 Container(
                                   width: 40,
                                   alignment: Alignment.center,
                                   child: Text('$quantity',
-                                      style: TextStyle(
+                                      style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       )),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.add),
+                                  icon: const Icon(Icons.add),
                                   onPressed: () {
                                     setState(() => quantity++);
                                   },
-                                  color: Color(0xFF470404),
+                                  color: const Color(0xFF470404),
+                                  splashRadius: 20,
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                          // Discount Field
+                          // Discount Field - Fixed InputDecoration parameters
                           TextField(
+                            controller: discountController,
                             decoration: InputDecoration(
                               labelText: 'Discount Amount (Rs.)',
-                              labelStyle: TextStyle(color: Colors.grey.shade600),
-                              floatingLabelStyle: TextStyle(color: Color(0xFF470404)),
+                              labelStyle: GoogleFonts.poppins(
+                                color: Colors.grey.shade600,
+                              ),
+                              floatingLabelStyle: GoogleFonts.poppins(
+                                color: const Color(0xFF470404),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: Colors.grey.shade300),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Color(0xFF470404)),
+                                borderSide: const BorderSide(color: Color(0xFF470404)),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 14),
+                              prefixIcon: const Icon(Icons.discount,
+                                  color: Colors.grey),
+                              suffixIcon: itemDiscount > 0
+                                  ? IconButton(
+                                icon: const Icon(Icons.close, size: 18),
+                                onPressed: () {
+                                  discountController.clear();
+                                  setState(() => itemDiscount = 0.0);
+                                },
+                              )
+                                  : null,
                             ),
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
@@ -241,14 +294,18 @@ class _BillingPageState extends State<BillingPage> {
                               });
                             },
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
                           // Summary Card
                           Container(
-                            padding: EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Color(0xFFF8F8F8),
+                              color: const Color(0xFFF8F8F8),
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey.shade200,
+                                width: 1,
+                              ),
                             ),
                             child: Column(
                               children: [
@@ -256,49 +313,49 @@ class _BillingPageState extends State<BillingPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Subtotal',
-                                        style: TextStyle(
+                                        style: GoogleFonts.poppins(
                                           color: Colors.grey.shade600,
                                         )),
                                     Text(
                                       'Rs.${(product.notePrice * quantity).toStringAsFixed(2)}',
-                                      style: TextStyle(
+                                      style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Discount',
-                                        style: TextStyle(
+                                        style: GoogleFonts.poppins(
                                           color: Colors.grey.shade600,
                                         )),
                                     Text(
                                       '- Rs.${itemDiscount.toStringAsFixed(2)}',
-                                      style: TextStyle(
+                                      style: GoogleFonts.poppins(
                                         color: Colors.red,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ],
                                 ),
-                                Divider(height: 24, thickness: 1),
+                                const Divider(height: 24, thickness: 1),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Total',
-                                        style: TextStyle(
+                                        style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         )),
                                     Text(
                                       'Rs.${(product.notePrice * quantity - itemDiscount).toStringAsFixed(2)}',
-                                      style: TextStyle(
+                                      style: GoogleFonts.poppins(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
-                                        color: Color(0xFF470404),
+                                        color: const Color(0xFF470404),
                                       ),
                                     ),
                                   ],
@@ -312,36 +369,38 @@ class _BillingPageState extends State<BillingPage> {
 
                     // Action Buttons
                     Padding(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                       child: Row(
                         children: [
                           Expanded(
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 side: BorderSide(color: Colors.grey.shade400),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                backgroundColor: Colors.white,
                               ),
                               onPressed: () => Navigator.pop(context),
                               child: Text('Cancel',
-                                  style: TextStyle(
+                                  style: GoogleFonts.poppins(
                                     color: Colors.grey.shade700,
                                     fontWeight: FontWeight.w600,
                                   )),
                             ),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF470404),
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: const Color(0xFF470404),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 elevation: 0,
+                                shadowColor: Colors.transparent,
                               ),
                               onPressed: () {
                                 // Your existing add to cart logic
@@ -386,18 +445,33 @@ class _BillingPageState extends State<BillingPage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    backgroundColor: Color(0xFF470404),
-                                    duration: Duration(seconds: 2),
-                                    padding: EdgeInsets.symmetric(
+                                    backgroundColor: const Color(0xFF470404),
+                                    duration: const Duration(seconds: 2),
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 24, vertical: 14),
+                                    action: SnackBarAction(
+                                      label: 'View',
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        // Optional: Navigate to cart
+                                      },
+                                    ),
                                   ),
                                 );
                               },
-                              child: Text('Add to Order',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  )),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.shopping_cart_checkout,
+                                      size: 20, color: Colors.white),
+                                  const SizedBox(width: 8),
+                                  Text('Add to Order',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                ],
+                              ),
                             ),
                           ),
                         ],
