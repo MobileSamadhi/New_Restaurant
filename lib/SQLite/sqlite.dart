@@ -112,6 +112,31 @@ class DatabaseHelper {
     }
   }
 
+  // Add these methods to your DatabaseHelper class:
+
+// Check if user exists
+  Future<bool> checkUserExists(String username) async {
+    final Database db = await initDB();
+    final result = await db.query(
+      'users',
+      where: 'usrName = ?',
+      whereArgs: [username.toLowerCase()],
+    );
+    return result.isNotEmpty;
+  }
+
+// Update user password
+  Future<bool> updatePassword(String username, String newPassword) async {
+    final Database db = await initDB();
+    final updatedRows = await db.update(
+      'users',
+      {'usrPassword': newPassword},
+      where: 'usrName = ?',
+      whereArgs: [username.toLowerCase()],
+    );
+    return updatedRows > 0;
+  }
+
   Future<String?> getCurrentUser() async {
     final Database db = await initDB();
     var result = await db.rawQuery(

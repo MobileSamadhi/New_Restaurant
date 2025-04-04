@@ -22,6 +22,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final db = DatabaseHelper();
   final formKey = GlobalKey<FormState>();
 
+  // For password reset dialog
+  bool _isOldPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -176,6 +181,22 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ],
                           ),
+
+                          // Forgot password text
+                          TextButton(
+                            onPressed: () {
+                              _showForgotPasswordDialog();
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -329,15 +350,12 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLoading = true;
     });
-    print('[_login] isLoading set to true');
 
     try {
-      // Normalize username the same way as in signup
       String normalizedUsername = username.text.trim().toLowerCase();
       print('[_login] Normalized username: $normalizedUsername');
-      print('[_login] Password: ${password.text}');
 
-      // Save or clear remembered credentials based on user choice
+      // Save or clear remembered credentials
       final prefs = await SharedPreferences.getInstance();
       if (rememberMe) {
         await prefs.setBool('rememberMe', true);
@@ -351,31 +369,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
       var response = await db.login(
         Users(
-          usrName: normalizedUsername,  // Use normalized username here
+          usrName: normalizedUsername,
           usrPassword: password.text,
           usrPhone: '',
         ),
       );
-      print('[_login] Received response from db.login: $response');
 
       if (response == true) {
         print('[_login] Login successful');
-        if (!mounted) {
-          print('[_login] Widget not mounted, returning');
-          return;
-        }
+        if (!mounted) return;
 
-        // Store the normalized username in SharedPreferences
-        print('[_login] Storing user in SharedPreferences');
         await prefs.setString('currentUser', normalizedUsername);
-        print('[_login] User stored successfully');
 
-        // Show success message
-        print('[_login] Showing success snackbar');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Login Successful! Welcome ${username.text}!", // Show original casing in UI
+              "Login Successful! Welcome ${username.text}!",
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: const Color(0xFF470404),
@@ -387,17 +396,12 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
 
-        // Navigate to dashboard
-        print('[_login] Waiting 1 second before navigation');
         await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
-          print('[_login] Navigating to DashboardPage');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DashboardPage()),
           );
-        } else {
-          print('[_login] Widget not mounted during navigation attempt');
         }
       } else {
         print('[_login] Login failed - incorrect credentials');
@@ -414,15 +418,361 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } finally {
       if (mounted) {
-        print('[_login] Setting isLoading to false');
         setState(() {
           isLoading = false;
         });
-      } else {
-        print('[_login] Widget not mounted in finally block');
       }
     }
-    print('[_login] Login process completed');
+  }
+
+  void _showForgotPasswordDialog() {
+    final emailController = TextEditingController();
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text(
+                "Reset Password",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF470404),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Email/Username field
+                    _buildDialogInputField(
+                      controller: emailController,
+                      icon: Icons.email_outlined,
+                      hintText: "Enter your username",
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Old password field (for change password)
+                    _buildDialogInputField(
+                      controller: oldPasswordController,
+                      icon: Icons.lock_outline,
+                      hintText: "(optional) Current password",
+                      obscureText: !_isOldPasswordVisible,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isOldPasswordVisible = !_isOldPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          _isOldPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: const Color(0xFF470404),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // New password field
+                    _buildDialogInputField(
+                      controller: newPasswordController,
+                      icon: Icons.lock_reset,
+                      hintText: "New password",
+                      obscureText: !_isNewPasswordVisible,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isNewPasswordVisible = !_isNewPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          _isNewPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: const Color(0xFF470404),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Confirm new password field
+                    _buildDialogInputField(
+                      controller: confirmPasswordController,
+                      icon: Icons.lock_reset,
+                      hintText: "Confirm new password",
+                      obscureText: !_isConfirmPasswordVisible,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: const Color(0xFF470404),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        "Cancel",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF470404),
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF470404),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (emailController.text.isEmpty) {
+                          _showErrorDialog("Error", "Please enter your username");
+                          return;
+                        }
+
+                        if (oldPasswordController.text.isNotEmpty) {
+                          if (newPasswordController.text.isEmpty ||
+                              confirmPasswordController.text.isEmpty) {
+                            _showErrorDialog("Error", "Please fill all password fields");
+                            return;
+                          }
+
+                          if (newPasswordController.text != confirmPasswordController.text) {
+                            _showErrorDialog("Error", "New passwords don't match");
+                            return;
+                          }
+
+                          await _changePassword(
+                            emailController.text,
+                            oldPasswordController.text,
+                            newPasswordController.text,
+                          );
+                        } else {
+                          if (newPasswordController.text.isEmpty ||
+                              confirmPasswordController.text.isEmpty) {
+                            _showErrorDialog("Error", "Please fill all password fields");
+                            return;
+                          }
+
+                          if (newPasswordController.text != confirmPasswordController.text) {
+                            _showErrorDialog("Error", "New passwords don't match");
+                            return;
+                          }
+
+                          await _resetPassword(
+                            emailController.text,
+                            newPasswordController.text,
+                          );
+                        }
+                      },
+                      child: Text(
+                        "Submit",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDialogInputField({
+    required TextEditingController controller,
+    required IconData icon,
+    required String hintText,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey[100],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        style: GoogleFonts.poppins(
+          color: Colors.black87,
+          fontSize: 14,
+        ),
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: const Color(0xFF470404)),
+          suffixIcon: suffixIcon,
+          hintText: hintText,
+          hintStyle: GoogleFonts.poppins(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          filled: true,
+          fillColor: Colors.transparent,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _resetPassword(String username, String newPassword) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      String normalizedUsername = username.trim().toLowerCase();
+
+      bool userExists = await db.checkUserExists(normalizedUsername);
+      if (!userExists) {
+        if (mounted) {
+          _showErrorDialog("Error", "Username not found");
+        }
+        return;
+      }
+
+      bool success = await db.updatePassword(normalizedUsername, newPassword);
+
+      if (success) {
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Password reset successfully!",
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          _showErrorDialog("Error", "Failed to reset password. Please try again.");
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog("Error", "An error occurred: $e");
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _changePassword(String username, String oldPassword, String newPassword) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      String normalizedUsername = username.trim().toLowerCase();
+
+      bool valid = await db.login(
+        Users(
+          usrName: normalizedUsername,
+          usrPassword: oldPassword,
+          usrPhone: '',
+        ),
+      );
+
+      if (!valid) {
+        if (mounted) {
+          _showErrorDialog("Error", "Current password is incorrect");
+        }
+        return;
+      }
+
+      bool success = await db.updatePassword(normalizedUsername, newPassword);
+
+      if (success) {
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Password changed successfully!",
+                style: GoogleFonts.poppins(),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+
+          final prefs = await SharedPreferences.getInstance();
+          if (rememberMe && prefs.getString('rememberedUsername')?.toLowerCase() == normalizedUsername) {
+            await prefs.setString('rememberedPassword', newPassword);
+          }
+        }
+      } else {
+        if (mounted) {
+          _showErrorDialog("Error", "Failed to change password. Please try again.");
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog("Error", "An error occurred: $e");
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   void _showErrorDialog(String title, String message) {
