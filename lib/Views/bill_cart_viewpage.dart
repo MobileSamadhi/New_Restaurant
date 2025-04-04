@@ -124,8 +124,8 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
 
       bluetooth.printCustom(company!.companyName, 3, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(company!.address, 1, 1);
-      bluetooth.printCustom(company!.phone, 1, 1);
+      bluetooth.printCustom("Address: ${company!.address}", 1, 1);
+      bluetooth.printCustom("Tel: ${company!.phone}", 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom('INVOICE', 2, 1);
       bluetooth.printNewLine();
@@ -133,7 +133,6 @@ class _BillAndCartViewPageState extends State<BillAndCartViewPage> {
       // Print invoice info
       bluetooth.printCustom(leftRightAlign('Invoice No :', selectedBillId.toString()), 1, 1);
       bluetooth.printCustom(leftRightAlign('Date :', commonBillDetails!['date']), 1, 1);
-      bluetooth.printCustom(leftRightAlign('Time :', commonBillDetails!['time']), 1, 1);
       bluetooth.printNewLine();
 
       bluetooth.printCustom(addRightMargin("------------------------------------------", totalWidth: 42), 1, 1);

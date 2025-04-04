@@ -124,8 +124,8 @@ class _PrintBillPageState extends State<PrintBillPage> {
 
       bluetooth.printCustom(company!.companyName, 3, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(company!.address, 1, 1);
-      bluetooth.printCustom(company!.phone, 1, 1);
+      bluetooth.printCustom("Address: ${company!.address}", 1, 1);
+      bluetooth.printCustom("Tel: ${company!.phone}", 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom('INVOICE', 2, 1);
       bluetooth.printNewLine();

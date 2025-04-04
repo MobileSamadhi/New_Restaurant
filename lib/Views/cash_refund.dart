@@ -475,12 +475,14 @@ class _CashRefundPageState extends State<CashRefundPage> {
       if (company != null) {
         _bluetooth.printCustom(company!.companyName, 2, 1);  // Font size 2 (large)
         _bluetooth.printNewLine();
-        _bluetooth.printCustom(company!.address, 1, 1);      // Font size 1 (medium)
-        _bluetooth.printCustom(company!.phone, 1, 1);        // Font size 1 (medium)
+        _bluetooth.printCustom("Address: ${company!.address}", 1, 1);
+        _bluetooth.printCustom("Tel: ${company!.phone}", 1, 1);
         _bluetooth.printNewLine();
       }
 
-      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 2, 1);  // Font size 2 (large)
+     // _bluetooth.printCustom('SALES SUMMARY', 1, 1);
+
+      _bluetooth.printCustom(addCenterMargin("REFUND RECEIPT", totalWidth: 42), 1, 1);  // Font size 2 (large)
       _bluetooth.printNewLine();
 
       // Print refund info with medium font
@@ -517,7 +519,7 @@ class _CashRefundPageState extends State<CashRefundPage> {
             price.toStringAsFixed(2),
             amount.toStringAsFixed(2)
         );
-        _bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 0, 1);
+        _bluetooth.printCustom(addRightMargin(itemLine, totalWidth: 42), 1, 1);
 
         totalRefundItems++;
         totalRefundQuantity += quantity;

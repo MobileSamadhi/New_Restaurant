@@ -359,8 +359,8 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       // Print header
       bluetooth.printCustom(company!.companyName, 1, 1);
       bluetooth.printNewLine();
-      bluetooth.printCustom(company!.address, 1, 1);
-      bluetooth.printCustom(company!.phone, 1, 1);
+      bluetooth.printCustom("Address: ${company!.address}", 1, 1);
+      bluetooth.printCustom("Tel: ${company!.phone}", 1, 1);
       bluetooth.printNewLine();
       bluetooth.printCustom('SALES SUMMARY', 1, 1);
       bluetooth.printNewLine();
@@ -412,7 +412,7 @@ class _SalesSummaryPageState extends State<SalesSummaryPage> {
       bluetooth.printNewLine();
 
       bluetooth.printCustom(addCenterMargin("Thank You!", totalWidth: 42), 1, 1);
-      bluetooth.printCustom(addCenterMargin("Software by Synnex IT", totalWidth: 42), 1, 1);
+      bluetooth.printCustom(addCenterMargin("Software by Synnex IT Solution", totalWidth: 42), 1, 1);
       bluetooth.printNewLine();
 
       bluetooth.printCustom("", 1, 1);
